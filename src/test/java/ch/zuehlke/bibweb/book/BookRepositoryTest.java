@@ -21,19 +21,19 @@ public class BookRepositoryTest {
     @Autowired
     private BookRepository bookRepository;
 
-    /*@Test
+    @Test
     public void whenGetByValidId_thenReturnBook() {
         Book book = new Book();
         book.setId(5L);
         book.setTitle("EM Book 0");
 
-        entityManager.merge(book);
+        entityManager.persist(book);
         entityManager.flush();
 
         Optional<Book> found = bookRepository.findById(book.getId());
 
         Assert.assertTrue(found.isPresent());
         Assert.assertEquals(book.getTitle(), found.get().getTitle());
-    }*/
+    }
 
 }
