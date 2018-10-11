@@ -7,22 +7,18 @@ import java.time.Year;
 public class Book {
 
     @Id
-    @GeneratedValue(strategy= GenerationType.AUTO)
+    @GeneratedValue(strategy=GenerationType.AUTO)
     @Column(name="id")
     private Long id;
 
     @Column(name="title")
     private String title;
 
-    /*@Column(name="year")
-    private Year year;*/
-
     public Book() {}
 
-    public Book(Long id, String title, Year year) {
+    public Book(Long id, String title) {
         this.id = id;
         this.title = title;
-        //this.year = year;
     }
 
     public void setId(Long id) {
@@ -40,12 +36,4 @@ public class Book {
     public void setTitle(String title) {
         this.title = title;
     }
-
-    /*public Year getYear() {
-        return year;
-    }
-
-    public void setYear(Year year) {
-        this.year = year;
-    }*/
 }
