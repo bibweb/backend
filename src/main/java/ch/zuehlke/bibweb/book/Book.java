@@ -16,18 +16,23 @@ public class Book {
     @Column(name="isbn")
     private String isbn;
 
-    @Column(name="release_year")
+    @Column(name="release_year", nullable = true)
     private Integer releaseYear;
 
-    @Column(name="number_of_pages")
+    @Column(name="number_of_pages", nullable = true)
     private Integer numberOfPages;
 
     @Column(name="booktype")
     private BookType bookType;
 
-    public Book() {}
+    public Book() {
+        this.bookType = BookType.UNKNOWN;
+        this.numberOfPages = -1;
+        this.releaseYear = -1;
+    }
 
-    public Book(Long id, String title) {
+    public Book(Long id, String title){
+        this();
         this.id = id;
         this.title = title;
     }
