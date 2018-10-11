@@ -2,11 +2,6 @@ pipeline {
     agent any
 
     stages {
-        stage('Checkout') {
-            steps {
-                git 'https://github.com/bibweb/backend'
-            }
-        }
         stage('Build') {
             steps {
                 sh 'chmod +x gradlew'
