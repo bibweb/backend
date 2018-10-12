@@ -16,7 +16,7 @@ pipeline {
         stage('Deploy Docker local') {
             steps {
                 sh 'docker stop bibweb-backend || true && docker rm -f bibweb-backend || true'
-                withCredentials([usernamePassword(credentialsId: 'mysql_pwd', usernameVariable: 'BIBUSER', passwordVariable: 'BIBPWD')]) {
+                withCredentials([usernamePassword(credentialsId: 'bibweb_mysql', usernameVariable: 'BIBUSER', passwordVariable: 'BIBPWD')]) {
                     sh '''
                         docker run --name=bibweb-backend --restart unless-stopped -d -p 8090:8080 \
                         -e DATABASE_URL=mysql://bibweb-mysql:3306/bibweb \
