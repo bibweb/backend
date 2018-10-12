@@ -15,7 +15,7 @@ pipeline {
         }
         stage('Deploy Docker local') {
             steps {
-                sh 'docker service update --env "JENKINS_META=$JOB_NAME[$BUILD_NUMBER]" bibweb-backend'
+                sh 'docker service update --env-add "JENKINS_META=$JOB_NAME[$BUILD_NUMBER]" bibweb-backend'
             }
         }
     }
