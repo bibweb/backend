@@ -23,6 +23,7 @@ pipeline {
                         -e DATABASE_USER=$BIBUSER \
                         -e DATABASE_PASSWORD=$BIBPWD \
                         -e DATABASE_DRIVER=com.mysql.jdbc.Driver \
+                        --net="host" \
                         zuehlke/bibweb-backend
                     '''
                 }
