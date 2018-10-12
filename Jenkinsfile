@@ -16,7 +16,6 @@ pipeline {
         stage('Deploy Docker local') {
             steps {
                 sh 'docker service update --image zuehlke/bibweb-backend bibweb-backend'
-                }
             }
         }
     }
