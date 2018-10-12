@@ -10,7 +10,7 @@ pipeline {
         }
         stage('Docker image') {
             steps {
-                sh 'docker build --build-arg JAR_FILE=./build/libs/bibweb-backend-0.1.0.jar -t zuehlke/bibweb-backend .'
+                sh './gradlew docker'
             }
         }
         stage('Deploy Docker local') {
