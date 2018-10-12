@@ -27,8 +27,6 @@ pipeline {
                         zuehlke/bibweb-backend
                     '''
                 }
-                }
-
             }
         }
     }
