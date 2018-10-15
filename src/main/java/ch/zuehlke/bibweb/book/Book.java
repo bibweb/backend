@@ -8,6 +8,7 @@ public class Book {
 
     @Id
     @Column(name="id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(name="title")

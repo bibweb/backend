@@ -1,10 +1,10 @@
 CREATE TABLE book (
-	id INTEGER NOT NULL AUTO_INCREMENT,
+	id BIGINT NOT NULL AUTO_INCREMENT,
 	title VARCHAR(200),
 	isbn VARCHAR(200),
 	release_year INTEGER,
 	number_of_pages INTEGER,
-	booktype VARCHAR(200),
+	booktype INTEGER,
 	PRIMARY KEY(id)
 );
 
