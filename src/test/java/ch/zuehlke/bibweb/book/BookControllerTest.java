@@ -4,7 +4,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Bean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
@@ -34,12 +36,21 @@ public class BookControllerTest {
         book.setId(3000L);
         book.setTitle("Buch 1");
 
-        given(bookService.getBookById(3000L)).willReturn(Optional.of(book));
+        given(bookService.getBookById(3000L)).willReturn(book);
 
         mvc.perform(get("/book/3000")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.title", is(book.getTitle())));
+    }
+
+    @Test
+    public void whenNonExistingId_thenStatusIsNotFound() throws Exception {
+        given(bookService.getBookById(3000L)).willThrow(BookNotFoundExcpetion.class);
+
+        mvc.perform(get("/book/3000")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
     }
 
     @Test
@@ -64,4 +75,6 @@ public class BookControllerTest {
                 .andExpect(jsonPath("$[1].title", is(book1.getTitle())))
                 .andExpect(jsonPath("$[0].title", is(book0.getTitle())));
     }
+
+
 }

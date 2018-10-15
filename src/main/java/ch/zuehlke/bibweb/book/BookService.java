@@ -16,8 +16,11 @@ public class BookService {
         return bookRepository.findAll();
     }
 
-    public Optional<Book> getBookById(Long id) {
-        return bookRepository.findById(id);
+    public Book getBookById(Long id) throws BookNotFoundExcpetion {
+        Optional<Book> book = bookRepository.findById(id);
+        if(book.isPresent()) return book.get();
+
+        throw new BookNotFoundExcpetion();
     }
 
     public void updateBook(Long id, Book book) {
