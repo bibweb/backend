@@ -23,13 +23,13 @@ public class BookRepositoryTest {
     @Test
     public void whenGetByValidId_thenReturnBook() {
         Book book = new Book();
-        book.setId(5L);
         book.setTitle("EM Book 0");
 
-        entityManager.persist(book);
+        Long id = entityManager.persist(book).getId();
         entityManager.flush();
 
-        Optional<Book> found = bookRepository.findById(book.getId());
+        System.out.println(id);
+        Optional<Book> found = bookRepository.findById(id);
 
         Assert.assertTrue(found.isPresent());
         Assert.assertEquals(book.getTitle(), found.get().getTitle());
