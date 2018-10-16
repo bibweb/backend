@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+@RequestMapping("/bookrequest")
 public class BookRequestController {
 
     private final
@@ -17,17 +18,12 @@ public class BookRequestController {
         this.bookRequestService = bookRequestService;
     }
 
-    @GetMapping("/bookrequest")
+    @GetMapping
     public List<BookRequest> getBookRequests() {
         return this.bookRequestService.getBookRequests();
     }
 
-    @GetMapping("/bookrequest/{id}")
-    public BookRequest getBookRequestDetails(@PathVariable long id) {
-        return this.bookRequestService.getBookRequestDetails(id);
-    }
-
-    @PostMapping("/bookrequest")
+    @PostMapping
     public ResponseEntity<BookRequest> createBookRequest(@RequestBody BookRequest bookRequest) {
         BookRequest savedBookRequest = bookRequestService.createBookRequest(bookRequest);
 
@@ -35,7 +31,12 @@ public class BookRequestController {
                 .body(savedBookRequest);
     }
 
-    @PutMapping("/bookrequest/{id}")
+    @GetMapping("/{id}")
+    public BookRequest getBookRequestDetails(@PathVariable long id) {
+        return this.bookRequestService.getBookRequestDetails(id);
+    }
+
+    @PutMapping("/{id}")
     public ResponseEntity updateBookRequest(@PathVariable long id, @RequestBody BookRequest bookRequest) {
         bookRequest.setId(id);
         this.bookRequestService.updateBookRequest(bookRequest);
