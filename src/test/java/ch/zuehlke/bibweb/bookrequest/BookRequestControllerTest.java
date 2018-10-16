@@ -18,8 +18,10 @@ import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doNothing;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -90,6 +92,19 @@ public class BookRequestControllerTest {
                 .andExpect(jsonPath("$.isbn", is(bookRequest.getIsbn())))
                 .andExpect(jsonPath("$.user", is(bookRequest.getUser())))
                 .andExpect(jsonPath("$.state", is(bookRequest.getState())));
+    }
+
+    @Test
+    public void updateBookRequest() throws Exception{
+        final BookRequest bookRequest = new BookRequest("3932420942092", "testuser", 0);
+
+        doNothing().when(bookRequestService).updateBookRequest(any(BookRequest.class));
+
+        this.mvc.perform(put("/bookrequest/1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new ObjectMapper().writeValueAsString(bookRequest))
+                .characterEncoding("UTF8"))
+                .andExpect(status().isNoContent());
     }
 
 }
