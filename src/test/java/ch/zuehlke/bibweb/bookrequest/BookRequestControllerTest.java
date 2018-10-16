@@ -47,7 +47,12 @@ public class BookRequestControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$[0].isbn", is(BookRequestControllerTest.bookRequests.get(0).getIsbn())))
-                .andExpect(jsonPath("$[1].isbn", is(BookRequestControllerTest.bookRequests.get(1).getIsbn())));
+                .andExpect(jsonPath("$[0].user", is(BookRequestControllerTest.bookRequests.get(0).getUser())))
+                .andExpect(jsonPath("$[0].state", is(BookRequestControllerTest.bookRequests.get(0).getState())))
+                .andExpect(jsonPath("$[1].isbn", is(BookRequestControllerTest.bookRequests.get(1).getIsbn())))
+                .andExpect(jsonPath("$[1].user", is(BookRequestControllerTest.bookRequests.get(1).getUser())))
+                .andExpect(jsonPath("$[1].state", is(BookRequestControllerTest.bookRequests.get(1).getState())));
+
     }
 
     @Test
@@ -59,7 +64,8 @@ public class BookRequestControllerTest {
         this.mvc.perform(get("/bookrequest/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.isbn", is(bookRequest.getIsbn())))
-                .andExpect(jsonPath("$.user", is(bookRequest.getUser())));
+                .andExpect(jsonPath("$.user", is(bookRequest.getUser())))
+                .andExpect(jsonPath("$.state", is(bookRequest.getState())));
     }
 
     @Test
@@ -82,7 +88,8 @@ public class BookRequestControllerTest {
                 .characterEncoding("UTF8"))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.isbn", is(bookRequest.getIsbn())))
-                .andExpect(jsonPath("$.user", is(bookRequest.getUser())));
+                .andExpect(jsonPath("$.user", is(bookRequest.getUser())))
+                .andExpect(jsonPath("$.state", is(bookRequest.getState())));
     }
 
 }
