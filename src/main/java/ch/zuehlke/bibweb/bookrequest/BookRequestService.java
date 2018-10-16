@@ -30,4 +30,12 @@ public class BookRequestService {
             throw new BookRequestNotFoundException();
         }
     }
+
+    public void updateBookRequest(final BookRequest bookRequest) {
+        if (this.bookRequestRepository.existsById(bookRequest.getId())) {
+            this.bookRequestRepository.save(bookRequest);
+        } else {
+            throw new BookRequestNotFoundException();
+        }
+    }
 }

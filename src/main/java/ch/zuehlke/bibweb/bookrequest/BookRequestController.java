@@ -2,6 +2,7 @@ package ch.zuehlke.bibweb.bookrequest;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -32,6 +33,13 @@ public class BookRequestController {
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(savedBookRequest);
+    }
+
+    @PutMapping("/bookrequest/{id}")
+    public ResponseEntity updateBookRequest(@PathVariable long id, @RequestBody BookRequest bookRequest) {
+        bookRequest.setId(id);
+        this.bookRequestService.updateBookRequest(bookRequest);
+        return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 
     @ExceptionHandler
