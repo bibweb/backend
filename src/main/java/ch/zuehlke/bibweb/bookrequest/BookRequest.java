@@ -15,18 +15,26 @@ public class BookRequest {
     @Column(name = "user")
     private String user;
 
+    @Column(name = "state")
+    private int state;
+
     public BookRequest() {
     }
 
     public BookRequest(String isbn, String user) {
-        this.isbn = isbn;
-        this.user = user;
+        this(isbn, user, 0);
     }
 
     public BookRequest(Long id, String isbn, String user) {
         this.id = id;
         this.isbn = isbn;
         this.user = user;
+    }
+
+    public BookRequest(String isbn, String user, int state) {
+        this.isbn = isbn;
+        this.user = user;
+        this.state = state;
     }
 
     public long getId() {
@@ -51,5 +59,13 @@ public class BookRequest {
 
     public void setUser(String user) {
         this.user = user;
+    }
+
+    public int getState() {
+        return state;
+    }
+
+    public void setState(int state) {
+        this.state = state;
     }
 }
