@@ -2,6 +2,7 @@ package ch.zuehlke.bibweb.bookrequest;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
@@ -37,6 +38,7 @@ public class BookRequestController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity updateBookRequest(@PathVariable long id, @RequestBody BookRequest bookRequest) {
         bookRequest.setId(id);
         this.bookRequestService.updateBookRequest(bookRequest);
