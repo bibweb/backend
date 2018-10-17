@@ -19,6 +19,10 @@ public class BookRequestService {
         return this.bookRequestRepository.findAll();
     }
 
+    public List<BookRequest> getBookRequestsFromUser(String userName) {
+        return this.bookRequestRepository.findAllByUser(userName);
+    }
+
     public BookRequest createBookRequest(BookRequest bookRequest) {
         bookRequest.setUser(SecurityContextHolder.getContext().getAuthentication().getName());
         return this.bookRequestRepository.save(bookRequest);
