@@ -9,7 +9,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
-import java.util.Optional;
 import java.util.Set;
 
 @Service(value = "userService")
@@ -33,7 +32,7 @@ public class UserServiceImpl implements UserDetailsService, UserService {
     private Set getAuthority(User user) {
         Set authorities = new HashSet<>();
         user.getRoles().forEach(role -> {
-            authorities.add(new SimpleGrantedAuthority("ROLE_" + role.getName()));
+            authorities.add(new SimpleGrantedAuthority("ROLE_" + role.getRolename()));
         });
         return authorities;
     }
