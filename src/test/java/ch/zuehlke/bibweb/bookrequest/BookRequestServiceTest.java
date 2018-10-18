@@ -49,9 +49,9 @@ public class BookRequestServiceTest {
 
     }
 
-    @Test(expected = BookNotFoundExcpetion.class)
+    @Test(expected = BookRequestNotFoundException.class)
     public void getBookRequestDetails_NotFound() {
-        given(bookRequestRepository.findById(anyLong())).willThrow(new BookNotFoundExcpetion());
+        given(bookRequestRepository.findById(anyLong())).willReturn(Optional.empty());
 
         this.bookRequestService.getBookRequestDetails(99);
     }
