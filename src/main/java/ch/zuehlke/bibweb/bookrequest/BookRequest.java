@@ -21,6 +21,10 @@ public class BookRequest {
     public BookRequest() {
     }
 
+    public BookRequest(String isbn) {
+        this(isbn, "");
+    }
+
     public BookRequest(String isbn, String user) {
         this(isbn, user, BookRequestState.NEW);
     }

@@ -2,6 +2,8 @@ package ch.zuehlke.bibweb.bookrequest;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -49,16 +51,17 @@ public class BookRequestController {
     }
 
     @GetMapping("/{id}")
+    @PostAuthorize("hasRole('ADMIN') or returnObject.user.equals(authentication.name)")
     public BookRequest getBookRequestDetails(@PathVariable long id) {
         return this.bookRequestService.getBookRequestDetails(id);
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity updateBookRequest(@PathVariable long id, @RequestBody BookRequest bookRequest) {
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void updateBookRequest(@PathVariable long id, @RequestBody BookRequest bookRequest) {
         bookRequest.setId(id);
         this.bookRequestService.updateBookRequest(bookRequest);
-        return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 
     @ExceptionHandler
