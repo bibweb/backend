@@ -1,6 +1,7 @@
 package ch.zuehlke.bibweb.bookrequest;
 
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,7 +20,12 @@ public class BookRequestService {
         return this.bookRequestRepository.findAll();
     }
 
-    public BookRequest createBookRequest(final BookRequest bookRequest) {
+    public List<BookRequest> getBookRequestsFromUser(String userName) {
+        return this.bookRequestRepository.findAllByUser(userName);
+    }
+
+    public BookRequest createBookRequest(BookRequest bookRequest) {
+        bookRequest.setUser(SecurityContextHolder.getContext().getAuthentication().getName());
         return this.bookRequestRepository.save(bookRequest);
     }
 

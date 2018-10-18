@@ -3,9 +3,8 @@ package ch.zuehlke.bibweb.bookrequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.web.WebAppConfiguration;
-import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,8 +21,23 @@ public class BookRequestController {
     }
 
     @GetMapping
-    public List<BookRequest> getBookRequests() {
-        return this.bookRequestService.getBookRequests();
+    public List<BookRequest> getBookRequests(Authentication authentication) {
+        isAdmin(authentication);
+
+        List<BookRequest> bookRequests;
+
+        if (isAdmin(authentication)) {
+            bookRequests = this.bookRequestService.getBookRequests();
+        } else {
+            bookRequests = this.bookRequestService.getBookRequestsFromUser(authentication.getName());
+        }
+        return bookRequests;
+    }
+
+    private boolean isAdmin(Authentication authentication) {
+        return authentication.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .anyMatch(s -> s.equals("ROLE_ADMIN"));
     }
 
     @PostMapping
