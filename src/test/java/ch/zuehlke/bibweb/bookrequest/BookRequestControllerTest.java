@@ -10,9 +10,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Arrays;
@@ -56,10 +54,10 @@ public class BookRequestControllerTest {
                 .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$[0].isbn", is(BookRequestControllerTest.bookRequests.get(0).getIsbn())))
                 .andExpect(jsonPath("$[0].user", is(BookRequestControllerTest.bookRequests.get(0).getUser())))
-                .andExpect(jsonPath("$[0].state", is(BookRequestControllerTest.bookRequests.get(0).getState())))
+                .andExpect(jsonPath("$[0].state", is(BookRequestControllerTest.bookRequests.get(0).getState().ordinal())))
                 .andExpect(jsonPath("$[1].isbn", is(BookRequestControllerTest.bookRequests.get(1).getIsbn())))
                 .andExpect(jsonPath("$[1].user", is(BookRequestControllerTest.bookRequests.get(1).getUser())))
-                .andExpect(jsonPath("$[1].state", is(BookRequestControllerTest.bookRequests.get(1).getState())));
+                .andExpect(jsonPath("$[1].state", is(BookRequestControllerTest.bookRequests.get(1).getState().ordinal())));
 
     }
 
@@ -91,7 +89,7 @@ public class BookRequestControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.isbn", is(bookRequest.getIsbn())))
                 .andExpect(jsonPath("$.user", is(bookRequest.getUser())))
-                .andExpect(jsonPath("$.state", is(bookRequest.getState())));
+                .andExpect(jsonPath("$.state", is(bookRequest.getState().ordinal())));
     }
 
     @Test
