@@ -1,5 +1,6 @@
 package ch.zuehlke.bibweb.bookrequest;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -31,6 +32,7 @@ public class BookRequestService {
         }
     }
 
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public void updateBookRequest(final BookRequest bookRequest) {
         if (this.bookRequestRepository.existsById(bookRequest.getId())) {
             this.bookRequestRepository.save(bookRequest);

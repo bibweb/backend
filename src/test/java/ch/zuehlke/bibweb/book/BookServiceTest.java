@@ -51,4 +51,14 @@ public class BookServiceTest {
         Mockito.when(bookRepository.findById(2L)).thenReturn(Optional.empty());
         bookService.getBookById(2L);
     }
+
+    @Test
+    public void whenUpdatingBook_thenBookShouldBeUpdated() {
+        Book book = new Book();
+        book.setId(1L);
+        book.setTitle("Testtitle");
+        Mockito.when(bookRepository.findById(1L)).thenReturn(Optional.of(book));
+
+        bookService.updateBook(1L, book);
+    }
 }

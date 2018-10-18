@@ -1,6 +1,7 @@
 package ch.zuehlke.bibweb.book;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,6 +24,7 @@ public class BookService {
         throw new BookNotFoundExcpetion();
     }
 
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public void updateBook(Long id, Book book) {
         if(book != null) {
             book.setId(id);

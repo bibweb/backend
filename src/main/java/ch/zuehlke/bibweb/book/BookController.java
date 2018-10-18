@@ -25,7 +25,6 @@ public class BookController {
     }
 
     @PutMapping("/book/{id}")
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public void updateBook(@PathVariable("id") int id, @RequestBody Book book) {
         bookService.updateBook((long) id, book);
     }

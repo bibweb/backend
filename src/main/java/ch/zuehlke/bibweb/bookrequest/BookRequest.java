@@ -16,13 +16,13 @@ public class BookRequest {
     private String user;
 
     @Column(name = "state")
-    private int state;
+    private BookRequestState state;
 
     public BookRequest() {
     }
 
     public BookRequest(String isbn, String user) {
-        this(isbn, user, 0);
+        this(isbn, user, BookRequestState.NEW);
     }
 
     public BookRequest(Long id, String isbn, String user) {
@@ -31,7 +31,7 @@ public class BookRequest {
         this.user = user;
     }
 
-    public BookRequest(String isbn, String user, int state) {
+    public BookRequest(String isbn, String user, BookRequestState state) {
         this.isbn = isbn;
         this.user = user;
         this.state = state;
@@ -61,11 +61,11 @@ public class BookRequest {
         this.user = user;
     }
 
-    public int getState() {
+    public BookRequestState getState() {
         return state;
     }
 
-    public void setState(int state) {
+    public void setState(BookRequestState state) {
         this.state = state;
     }
 }

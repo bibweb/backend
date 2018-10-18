@@ -1,14 +1,25 @@
 package ch.zuehlke.bibweb.bookrequest;
 
+import ch.zuehlke.bibweb.user.User;
+import ch.zuehlke.bibweb.user.UserRepository;
+import ch.zuehlke.bibweb.user.UserServiceImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Bean;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.test.context.support.WithAnonymousUser;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.test.context.support.WithUserDetails;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
@@ -22,38 +33,47 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(BookRequestController.class)
+@ContextConfiguration
+@WebAppConfiguration
 public class BookRequestControllerTest {
 
     @Autowired
     private MockMvc mvc;
 
-    @Autowired
-    private WebApplicationContext webApplicationContext;
-
     @MockBean
     private BookRequestService bookRequestService;
-
-    @Before
-    public void setUp() {
-        mvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
-    }
 
     private static final List<BookRequest> bookRequests = Arrays.asList(
             new BookRequest((long) 1, "123", "user1"),
             new BookRequest((long) 2, "456", "user2")
     );
 
+    @Autowired
+    private WebApplicationContext context;
+
+    @Before
+    public void setup() {
+        mvc = MockMvcBuilders
+                .webAppContextSetup(context)
+                .apply(springSecurity())
+                .build();
+    }
+
     @Test
     public void getAllBookRequests() throws Exception {
         given(this.bookRequestService.getBookRequests()).willReturn(BookRequestControllerTest.bookRequests);
 
-        this.mvc.perform(get("/bookrequest")
+        this.mvc.perform(get("/bookrequest").with(user("etienne").roles("USER"))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)))
@@ -72,7 +92,7 @@ public class BookRequestControllerTest {
 
         given(this.bookRequestService.getBookRequestDetails(anyLong())).willReturn(bookRequest);
 
-        this.mvc.perform(get("/bookrequest/1"))
+        this.mvc.perform(get("/bookrequest/1").with(user("etienne").roles("USER")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.isbn", is(bookRequest.getIsbn())))
                 .andExpect(jsonPath("$.user", is(bookRequest.getUser())))
@@ -83,7 +103,7 @@ public class BookRequestControllerTest {
     public void getBookRequestDetails_NotFound() throws Exception {
         given(this.bookRequestService.getBookRequestDetails(anyLong())).willThrow(new BookRequestNotFoundException());
 
-        this.mvc.perform(get("/bookrequest/99"))
+        this.mvc.perform(get("/bookrequest/99").with(user("etienne").roles("USER")))
                 .andExpect(status().isNotFound());
     }
 
@@ -93,23 +113,26 @@ public class BookRequestControllerTest {
 
         given(this.bookRequestService.createBookRequest(any(BookRequest.class))).willReturn(bookRequest);
 
-        this.mvc.perform(post("/bookrequest")
+        this.mvc.perform(post("/bookrequest").with(user("etienne").roles("USER"))
+                .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(new ObjectMapper().writeValueAsString(bookRequest))
                 .characterEncoding("UTF8"))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.isbn", is(bookRequest.getIsbn())))
                 .andExpect(jsonPath("$.user", is(bookRequest.getUser())))
-                .andExpect(jsonPath("$.state", is(bookRequest.getState())));
+                .andExpect(jsonPath("$.state", is(bookRequest.getState().toString())));
     }
 
     @Test
+    @WithMockUser(username = "stefan", roles = "")
     public void updateBookRequest() throws Exception{
-        final BookRequest bookRequest = new BookRequest("3932420942092", "testuser", 0);
+        final BookRequest bookRequest = new BookRequest("3932420942092", "testuser", BookRequestState.ACCEPTED);
 
         doNothing().when(bookRequestService).updateBookRequest(any(BookRequest.class));
 
         this.mvc.perform(put("/bookrequest/1")
+                .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(new ObjectMapper().writeValueAsString(bookRequest))
                 .characterEncoding("UTF8"))
