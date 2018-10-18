@@ -11,6 +11,7 @@ pipeline {
         stage('JaCoCo') {
                      steps {
                          sh './gradlew jacocoTestReport'
+                         jacoco()
                      }
                  }
         stage('Docker image') {
