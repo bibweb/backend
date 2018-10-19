@@ -1,6 +1,7 @@
 package ch.zuehlke.bibweb.config;
 
 import io.jsonwebtoken.*;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -16,10 +17,12 @@ import java.util.stream.Collectors;
 
 import static ch.zuehlke.bibweb.config.Constants.ACCESS_TOKEN_VALIDITY_SECONDS;
 import static ch.zuehlke.bibweb.config.Constants.AUTHORITIES_KEY;
-import static ch.zuehlke.bibweb.config.Constants.SIGNING_KEY;
 
 @Component
 public class TokenProvider {
+
+    @Value("${zuehlkeJwt.signing-key}")
+    private String signingKey;
 
     public String getUsernameFromToken(String token) {
         return getClaimFromToken(token, Claims::getSubject);
@@ -36,7 +39,7 @@ public class TokenProvider {
 
     private Claims getAllClaimsFromToken(String token) {
         return Jwts.parser()
-                .setSigningKey(SIGNING_KEY)
+                .setSigningKey(signingKey)
                 .parseClaimsJws(token)
                 .getBody();
     }
@@ -53,7 +56,7 @@ public class TokenProvider {
         return Jwts.builder()
                 .setSubject(authentication.getName())
                 .claim(AUTHORITIES_KEY, authorities)
-                .signWith(SignatureAlgorithm.HS256, SIGNING_KEY)
+                .signWith(SignatureAlgorithm.HS256, signingKey)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_VALIDITY_SECONDS*1000))
                 .compact();
@@ -68,7 +71,7 @@ public class TokenProvider {
 
     UsernamePasswordAuthenticationToken getAuthentication(final String token, final Authentication existingAuth, final UserDetails userDetails) {
 
-        final JwtParser jwtParser = Jwts.parser().setSigningKey(SIGNING_KEY);
+        final JwtParser jwtParser = Jwts.parser().setSigningKey(signingKey);
 
         final Jws<Claims> claimsJws = jwtParser.parseClaimsJws(token);
 
