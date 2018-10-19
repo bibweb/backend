@@ -1,4 +1,4 @@
-test_name: Test get of books should be unauthorized
+test_name: Test get of book requests should be unauthorized
 
 includes:
   - !include common.yaml

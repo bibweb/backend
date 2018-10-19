@@ -1,4 +1,6 @@
-FROM python:3.7.0-stretch
+FROM python:alpine
+RUN apk add sed
+
 RUN pip install tavern[pytest]
 
 WORKDIR /tests
