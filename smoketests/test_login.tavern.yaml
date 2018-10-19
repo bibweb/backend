@@ -1,0 +1,36 @@
+test_name: Check we can login and use a JWT to access the API
+
+includes:
+  - !include common.yaml
+
+stages:
+  - name: Retrieve a valid JWT token
+    request:
+      url: "{host:s}/token/generate-token"
+      json:
+        username: "{testuser:s}"
+        password: "{testpwd:s}"
+      headers:
+        content-type: application/json
+      method: POST
+      verify: false
+    response:
+      status_code: 200
+      headers:
+        content-type: application/json;charset=UTF-8
+      save:
+        body:
+          test_login_token: token
+          
+  - name: Retrieve books list with token
+    request:
+      url: "{host:s}/book"
+      headers:
+        content-type: application/json
+        Authorization: "Bearer {test_login_token:s}"
+      method: GET
+      verify: false
+    response:
+      status_code: 200
+      headers:
+        content-type: application/json;charset=UTF-8
