@@ -21,17 +21,26 @@ public class BookRequest {
     public BookRequest() {
     }
 
+    public BookRequest(String isbn) {
+        this(isbn, "");
+    }
+
     public BookRequest(String isbn, String user) {
         this(isbn, user, BookRequestState.NEW);
     }
 
     public BookRequest(Long id, String isbn, String user) {
-        this.id = id;
-        this.isbn = isbn;
-        this.user = user;
+        this(id, isbn, user, BookRequestState.NEW);
     }
 
     public BookRequest(String isbn, String user, BookRequestState state) {
+        this.isbn = isbn;
+        this.user = user;
+        this.state = state;
+    }
+
+    public BookRequest(long id, String isbn, String user, BookRequestState state) {
+        this.id = id;
         this.isbn = isbn;
         this.user = user;
         this.state = state;

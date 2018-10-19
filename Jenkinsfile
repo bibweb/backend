@@ -8,6 +8,12 @@ pipeline {
                 sh './gradlew clean build'
             }
         }
+        stage('JaCoCo') {
+                     steps {
+                         sh './gradlew jacocoTestReport'
+                         jacoco()
+                     }
+                 }
         stage('Docker image') {
             steps {
                 sh './gradlew docker'

@@ -1,5 +1,6 @@
 package ch.zuehlke.bibweb.bookrequest;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -10,11 +11,9 @@ import java.util.Optional;
 @Service
 public class BookRequestService {
 
-    private final BookRequestRepository bookRequestRepository;
+    @Autowired
+    private BookRequestRepository bookRequestRepository;
 
-    public BookRequestService(BookRequestRepository bookRequestRepository) {
-        this.bookRequestRepository = bookRequestRepository;
-    }
 
     public List<BookRequest> getBookRequests() {
         return this.bookRequestRepository.findAll();
