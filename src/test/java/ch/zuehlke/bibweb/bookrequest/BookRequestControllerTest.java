@@ -13,15 +13,13 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.Collections;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.doNothing;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -38,34 +36,11 @@ public class BookRequestControllerTest {
     @MockBean
     private BookRequestService bookRequestService;
 
-    private static final List<BookRequest> bookRequests = Arrays.asList(
-            new BookRequest((long) 1, "123", "user1"),
-            new BookRequest((long) 2, "456", "user2")
-    );
-
     @Test
-    @WithMockUser(username = "admin", roles = "ADMIN")
-    public void getAllBookRequests_asADMIN() throws Exception {
-        given(this.bookRequestService.getBookRequests()).willReturn(BookRequestControllerTest.bookRequests);
-
-        this.mvc.perform(get("/bookrequest")
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(2)))
-                .andExpect(jsonPath("$[0].isbn", is(BookRequestControllerTest.bookRequests.get(0).getIsbn())))
-                .andExpect(jsonPath("$[0].user", is(BookRequestControllerTest.bookRequests.get(0).getUser())))
-                .andExpect(jsonPath("$[0].state", is(BookRequestControllerTest.bookRequests.get(0).getState().ordinal())))
-                .andExpect(jsonPath("$[1].isbn", is(BookRequestControllerTest.bookRequests.get(1).getIsbn())))
-                .andExpect(jsonPath("$[1].user", is(BookRequestControllerTest.bookRequests.get(1).getUser())))
-                .andExpect(jsonPath("$[1].state", is(BookRequestControllerTest.bookRequests.get(1).getState().ordinal())));
-
-    }
-
-    @Test
-    @WithMockUser(username = "user1", roles = "USER")
-    public void getAllBookRequests_asUSER() throws Exception {
-        given(this.bookRequestService.getBookRequestsFromUser("user1")).willReturn(
-                Arrays.asList(new BookRequest("123", "user1", BookRequestState.NEW))
+    @WithMockUser(username = "user", roles = "USER")
+    public void getAllBookRequests() throws Exception {
+        given(this.bookRequestService.getBookRequests()).willReturn(
+                Collections.singletonList(new BookRequest("123", "user", BookRequestState.NEW))
         );
 
         this.mvc.perform(get("/bookrequest")
@@ -73,9 +48,8 @@ public class BookRequestControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
                 .andExpect(jsonPath("$[0].isbn", is("123")))
-                .andExpect(jsonPath("$[0].user", is("user1")))
+                .andExpect(jsonPath("$[0].user", is("user")))
                 .andExpect(jsonPath("$[0].state", is(BookRequestState.NEW.ordinal())));
-
     }
 
     @Test
@@ -133,9 +107,9 @@ public class BookRequestControllerTest {
     @Test
     @WithMockUser(username = "admin", roles = "ADMIN")
     public void updateBookRequest() throws Exception {
-        final BookRequest bookRequest = new BookRequest("3932420942092", "testuser", BookRequestState.ACCEPTED);
+        final BookRequest bookRequest = new BookRequest((long) 1, "3932420942092", "testuser", BookRequestState.ACCEPTED);
 
-        doNothing().when(bookRequestService).updateBookRequest(any(BookRequest.class));
+        given(this.bookRequestService.updateBookRequest(any(BookRequest.class))).willReturn(bookRequest);
 
         this.mvc.perform(put("/bookrequest/1")
                 .contentType(MediaType.APPLICATION_JSON)
