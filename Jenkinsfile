@@ -29,8 +29,8 @@ pipeline {
 				sh 'mkdir outTavern/ || true'
 				sh 'cp /home/ubuntu/smoketestconfig/common.yaml smoketests/'
 				sh 'cd smoketests && docker build -t zuehlke/bibweb-smoketests .'
-				sh 'docker rm bibweb-smoketests || true'
-				sh 'docker run --name bibweb-smoketests -e HOST_URL=https://`/usr/bin/curl -s http://169.254.169.254/latest/meta-data/public-hostname`:8443 zuehlke/bibweb-smoketests > /dev/null'
+				sh 'docker rm -f bibweb-smoketests || true'
+				sh 'docker run --name bibweb-smoketests -e HOST_URL=https://`/usr/bin/curl -s http://169.254.169.254/latest/meta-data/public-hostname`:8443 zuehlke/bibweb-smoketests'
 				sh 'docker cp bibweb-smoketests:/tests/out/results.xml outTavern/'
 			}
 		}
