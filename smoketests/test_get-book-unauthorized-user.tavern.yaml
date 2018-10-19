@@ -1,0 +1,21 @@
+test_name: Test get of books should be unauthorized
+
+includes:
+  - !include common.yaml
+
+stages:
+  - name: Access to books list is unauthorized
+    request:
+      url: "{host:s}/book"
+      method: GET
+      verify: false
+    response:
+      status_code: 401
+      
+  - name: Access to specific book is unauthorized
+    request:
+      url: "{host:s}/book/1"
+      method: GET
+      verify: false
+    response:
+      status_code: 401
