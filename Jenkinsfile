@@ -27,9 +27,10 @@ pipeline {
 		stage('Smoke tets') {
 			steps {
 				sh 'cd smoketests'
+				sh 'cp /home/ubuntu/common.yaml .'
 				sh 'docker build -t zuehlke/bibweb-smoketests .'
 				sh 'docker rm bibweb-smoketests || true'
-				sh 'docker run -t --name bibweb-smoketests -e HOST_URL=`/usr/bin/curl -s http://169.254.169.254/latest/meta-data/public-hostname`:8443 -e TEST_USER=$BIBWEB_TEST_USER -e TEST_PWD=$BIBWEB_TEST_PWD zuehlke/bibweb-smoketests'
+				sh 'docker run -t --name bibweb-smoketests -e HOST_URL=https://`/usr/bin/curl -s http://169.254.169.254/latest/meta-data/public-hostname`:8443 zuehlke/bibweb-smoketests'
 			}
 		}
     }
