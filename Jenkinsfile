@@ -30,7 +30,7 @@ pipeline {
 				sh 'cp /home/ubuntu/smoketestconfig/common.yaml smoketests/'
 				sh 'cd smoketests && docker build -t zuehlke/bibweb-smoketests .'
 				sh 'docker rm -f bibweb-smoketests || true'
-				sh 'docker run --name bibweb-smoketests -e HOST_URL=https://172.31.32.216:8443 zuehlke/bibweb-smoketests'
+				sh 'docker run --name bibweb-smoketests -e HOST_URL=https://172.17.0.1:8443 zuehlke/bibweb-smoketests'
 				sh 'docker cp bibweb-smoketests:/tests/out/results.xml outTavern/'
 			}
 		}
