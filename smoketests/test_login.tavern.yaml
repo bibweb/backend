@@ -4,7 +4,7 @@ includes:
   - !include common.yaml
 
 stages:
-  - name: Retrieve a valid JWT token
+  - name: login
     request:
       url: "{host:s}/token/generate-token"
       json:
@@ -22,7 +22,7 @@ stages:
         body:
           test_login_token: token
           
-  - name: Retrieve books list with token
+  - name: retrieve book list
     request:
       url: "{host:s}/book"
       headers:

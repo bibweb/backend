@@ -11,11 +11,3 @@ stages:
       verify: false
     response:
       status_code: 401
-      
-  - name: Access to specific book is unauthorized
-    request:
-      url: "{host:s}/book/1"
-      method: GET
-      verify: false
-    response:
-      status_code: 401
