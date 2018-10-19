@@ -1,5 +1,6 @@
 package ch.zuehlke.bibweb.bookrequest;
 
+import ch.zuehlke.bibweb.user.UserSecurityUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -14,17 +15,16 @@ public class BookRequestService {
     @Autowired
     private BookRequestRepository bookRequestRepository;
 
-
     public List<BookRequest> getBookRequests() {
-        return this.bookRequestRepository.findAll();
-    }
-
-    public List<BookRequest> getBookRequestsFromUser(String userName) {
-        return this.bookRequestRepository.findAllByUser(userName);
+        if (UserSecurityUtil.currentUserHasRole("ROLE_ADMIN")) {
+            return this.bookRequestRepository.findAll();
+        } else {
+            return this.bookRequestRepository.findAllByUser(UserSecurityUtil.currentUserName());
+        }
     }
 
     public BookRequest createBookRequest(BookRequest bookRequest) {
-        bookRequest.setUser(SecurityContextHolder.getContext().getAuthentication().getName());
+        bookRequest.setUser(UserSecurityUtil.currentUserName());
         return this.bookRequestRepository.save(bookRequest);
     }
 
@@ -38,9 +38,9 @@ public class BookRequestService {
     }
 
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
-    public void updateBookRequest(final BookRequest bookRequest) {
+    public BookRequest updateBookRequest(final BookRequest bookRequest) {
         if (this.bookRequestRepository.existsById(bookRequest.getId())) {
-            this.bookRequestRepository.save(bookRequest);
+            return this.bookRequestRepository.save(bookRequest);
         } else {
             throw new BookRequestNotFoundException();
         }

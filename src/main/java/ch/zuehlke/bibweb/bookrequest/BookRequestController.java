@@ -1,11 +1,8 @@
 package ch.zuehlke.bibweb.bookrequest;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,31 +19,15 @@ public class BookRequestController {
     }
 
     @GetMapping
-    public List<BookRequest> getBookRequests(Authentication authentication) {
-        isAdmin(authentication);
-
-        List<BookRequest> bookRequests;
-
-        if (isAdmin(authentication)) {
-            bookRequests = this.bookRequestService.getBookRequests();
-        } else {
-            bookRequests = this.bookRequestService.getBookRequestsFromUser(authentication.getName());
-        }
-        return bookRequests;
-    }
-
-    private boolean isAdmin(Authentication authentication) {
-        return authentication.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .anyMatch(s -> s.equals("ROLE_ADMIN"));
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    public List<BookRequest> getBookRequests() {
+        return this.bookRequestService.getBookRequests();
     }
 
     @PostMapping
-    public ResponseEntity<BookRequest> createBookRequest(@RequestBody BookRequest bookRequest) {
-        BookRequest savedBookRequest = bookRequestService.createBookRequest(bookRequest);
-
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(savedBookRequest);
+    @ResponseStatus(HttpStatus.CREATED)
+    public BookRequest createBookRequest(@RequestBody BookRequest bookRequest) {
+        return bookRequestService.createBookRequest(bookRequest);
     }
 
     @GetMapping("/{id}")
@@ -58,9 +39,9 @@ public class BookRequestController {
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void updateBookRequest(@PathVariable long id, @RequestBody BookRequest bookRequest) {
+    public BookRequest updateBookRequest(@PathVariable long id, @RequestBody BookRequest bookRequest) {
         bookRequest.setId(id);
-        this.bookRequestService.updateBookRequest(bookRequest);
+        return this.bookRequestService.updateBookRequest(bookRequest);
     }
 
     @ExceptionHandler
