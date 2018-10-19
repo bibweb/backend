@@ -26,9 +26,8 @@ pipeline {
         }
 		stage('Smoke test') {
 			steps {
-				sh 'cd smoketests'
-				sh 'cp /home/ubuntu/smoketestconfig/common.yaml .'
-				sh 'docker build -t zuehlke/bibweb-smoketests .'
+				sh 'cp /home/ubuntu/smoketestconfig/common.yaml smoketests/'
+				sh 'cd smoketests && docker build -t zuehlke/bibweb-smoketests .'
 				sh 'docker rm bibweb-smoketests || true'
 				sh 'docker run -t --name bibweb-smoketests -e HOST_URL=https://`/usr/bin/curl -s http://169.254.169.254/latest/meta-data/public-hostname`:8443 zuehlke/bibweb-smoketests'
 			}
