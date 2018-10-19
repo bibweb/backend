@@ -26,7 +26,7 @@ pipeline {
         }
 		stage('Smoke test') {
 			steps {
-				sh 'mkdir outTavern/'
+				sh 'mkdir outTavern/ || true'
 				sh 'cp /home/ubuntu/smoketestconfig/common.yaml smoketests/'
 				sh 'cd smoketests && docker build -t zuehlke/bibweb-smoketests .'
 				sh 'docker rm bibweb-smoketests || true'
