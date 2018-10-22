@@ -29,12 +29,11 @@ pipeline {
             }
         }
 		
-		stage('Smoke test') {	
-			waitUntil{
-				sh 'wget --retry-connrefused --no-check-certificate --tries=60 --waitretry=1 -q https://172.17.0.1:8443 -O /dev/null'
-			}
-			
+		stage('Smoke test') {		
 			steps {
+				waitUntil{
+					sh 'wget --retry-connrefused --no-check-certificate --tries=60 --waitretry=1 -q https://172.17.0.1:8443 -O /dev/null'
+				}
 				sh 'mkdir outTavern/ || true'
 				sh 'cp /home/ubuntu/smoketestconfig/common.yaml smoketests/'
 				sh 'cd smoketests && docker build -t zuehlke/bibweb-smoketests .'
