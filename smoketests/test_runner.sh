@@ -4,4 +4,6 @@ cat common.yaml
 
 cat /etc/hosts
 
+wget --no-check-certificate $HOST_URL/book
+
 py.test -q --junit-xml=out/results.xml

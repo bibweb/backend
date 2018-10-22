@@ -1,5 +1,6 @@
 FROM python:alpine
 RUN apk add sed
+RUN apk add wget
 
 RUN pip install tavern[pytest]
 
