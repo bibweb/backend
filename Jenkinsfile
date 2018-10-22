@@ -25,13 +25,13 @@ pipeline {
             }
         }
 		
-		timeout(5) {
-			waitUntil{
-				sh 'wget --retry-connrefused --no-check-certificate --tries=60 --waitretry=1 -q https://172.17.0.1:8443 -O /dev/null'
-			}
-		}
-		
 		stage('Smoke test') {	
+			timeout(5) {
+				waitUntil{
+					sh 'wget --retry-connrefused --no-check-certificate --tries=60 --waitretry=1 -q https://172.17.0.1:8443 -O /dev/null'
+				}
+			}
+			
 			steps {
 				sh 'mkdir outTavern/ || true'
 				sh 'cp /home/ubuntu/smoketestconfig/common.yaml smoketests/'
