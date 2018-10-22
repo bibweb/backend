@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+	options {
+		timeout(time: 10, unit: 'MINUTES')
+	}
+	
     stages {
         stage('Build') {
             steps {
@@ -26,10 +30,8 @@ pipeline {
         }
 		
 		stage('Smoke test') {	
-			timeout(5) {
-				waitUntil{
-					sh 'wget --retry-connrefused --no-check-certificate --tries=60 --waitretry=1 -q https://172.17.0.1:8443 -O /dev/null'
-				}
+			waitUntil{
+				sh 'wget --retry-connrefused --no-check-certificate --tries=60 --waitretry=1 -q https://172.17.0.1:8443 -O /dev/null'
 			}
 			
 			steps {
