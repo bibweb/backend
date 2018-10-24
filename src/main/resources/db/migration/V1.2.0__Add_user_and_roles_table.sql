@@ -19,3 +19,5 @@ CREATE TABLE user_roles(
 
 ALTER TABLE user_roles ADD CONSTRAINT ur_role_id FOREIGN KEY(role_id) REFERENCES role(id);
 ALTER TABLE user_roles ADD CONSTRAINT ur_user_id FOREIGN KEY(user_id) REFERENCES user(id);
+
+ALTER TABLE user ADD UNIQUE (username);
