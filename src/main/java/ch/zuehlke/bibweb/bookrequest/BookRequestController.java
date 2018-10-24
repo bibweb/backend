@@ -44,8 +44,31 @@ public class BookRequestController {
         return this.bookRequestService.updateBookRequest(bookRequest);
     }
 
+    @PutMapping("/{id}/accept")
+    @PreAuthorize("hasRole('ADMIN')")
+    public BookRequest acceptBookRequest(@PathVariable long id, @RequestBody BookRequest bookRequest) {
+        if (id != bookRequest.getId()) {
+            throw new IllegalArgumentException("Body doesn't match url.");
+        }
+        return this.bookRequestService.acceptBookRequest(bookRequest);
+    }
+
+    @PutMapping("/{id}/decline")
+    @PreAuthorize("hasRole('ADMIN')")
+    public BookRequest declineBookRequest(@PathVariable long id, @RequestBody BookRequest bookRequest) {
+        if (id != bookRequest.getId()) {
+            throw new IllegalArgumentException("Body doesn't match url.");
+        }
+        return this.bookRequestService.declineBookRequest(bookRequest);
+    }
+
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
     private void bookRequestNotFound(BookRequestNotFoundException ex) {
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    private void illegalArgument(IllegalArgumentException ex) {
     }
 }

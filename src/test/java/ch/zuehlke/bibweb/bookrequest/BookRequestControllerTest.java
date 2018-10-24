@@ -1,7 +1,9 @@
 package ch.zuehlke.bibweb.bookrequest;
 
+import ch.zuehlke.bibweb.book.Book;
 import ch.zuehlke.bibweb.config.WebSecurityTestConfig;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -128,5 +130,70 @@ public class BookRequestControllerTest {
                 .content(new ObjectMapper().writeValueAsString(bookRequest))
                 .characterEncoding("UTF8"))
                 .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    public void acceptBookRequest() throws Exception {
+        final BookRequest bookRequest = new BookRequest((long) 10, "131561161516", "user", BookRequestState.NEW);
+
+        given(this.bookRequestService.acceptBookRequest(any(BookRequest.class))).willReturn(
+                new BookRequest((long) 10, "131561161516", "user", BookRequestState.ACCEPTED)
+        );
+
+        this.mvc.perform(put("/bookrequest/10/accept")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new ObjectMapper().writeValueAsString(bookRequest))
+                .characterEncoding("UTF8"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.state", is(BookRequestState.ACCEPTED.ordinal())));
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    public void acceptBookRequest_notFound() throws Exception {
+        final BookRequest bookRequest = new BookRequest((long) 10, "131561161516", "user", BookRequestState.NEW);
+
+        given(this.bookRequestService.acceptBookRequest(any(BookRequest.class)))
+                .willThrow(new BookRequestNotFoundException());
+
+        this.mvc.perform(put("/bookrequest/10/accept")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new ObjectMapper().writeValueAsString(bookRequest))
+                .characterEncoding("UTF8"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    public void acceptBookRequest_wrongState() throws Exception {
+        final BookRequest bookRequest = new BookRequest((long) 10, "131561161516", "user", BookRequestState.NEW);
+
+        given(this.bookRequestService.acceptBookRequest(any(BookRequest.class)))
+                .willThrow(new IllegalArgumentException());
+
+        this.mvc.perform(put("/bookrequest/10/accept")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new ObjectMapper().writeValueAsString(bookRequest))
+                .characterEncoding("UTF8"))
+                .andExpect(status().isBadRequest());
+
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    public void declineBookRequest() throws Exception {
+        final BookRequest bookRequest = new BookRequest((long) 10, "131561161516", "user", BookRequestState.NEW);
+
+        given(this.bookRequestService.declineBookRequest(any(BookRequest.class))).willReturn(
+                new BookRequest((long) 10, "131561161516", "user", BookRequestState.DECLINED)
+        );
+
+        this.mvc.perform(put("/bookrequest/10/decline")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new ObjectMapper().writeValueAsString(bookRequest))
+                .characterEncoding("UTF8"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.state", is(BookRequestState.DECLINED.ordinal())));
     }
 }

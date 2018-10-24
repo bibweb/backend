@@ -45,4 +45,32 @@ public class BookRequestService {
             throw new BookRequestNotFoundException();
         }
     }
+
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    public BookRequest acceptBookRequest(BookRequest bookRequest) {
+        if (bookRequest.getState() != BookRequestState.NEW) {
+            throw new IllegalArgumentException("BookRequest doesn't allow to be accepted. Must be in state NEW, current " +bookRequest.getState());
+        }
+        if (this.bookRequestRepository.existsById(bookRequest.getId())) {
+            bookRequest.setState(BookRequestState.ACCEPTED);
+            return this.bookRequestRepository.saveAndFlush(bookRequest);
+
+        } else {
+            throw new BookRequestNotFoundException();
+        }
+    }
+
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    public BookRequest declineBookRequest(BookRequest bookRequest) {
+        if (bookRequest.getState() != BookRequestState.NEW) {
+            throw new IllegalArgumentException("BookRequest doesn't allow to be declined. Must be in state NEW, current " +bookRequest.getState());
+        }
+        if (this.bookRequestRepository.existsById(bookRequest.getId())) {
+            bookRequest.setState(BookRequestState.DECLINED);
+            return this.bookRequestRepository.saveAndFlush(bookRequest);
+
+        } else {
+            throw new BookRequestNotFoundException();
+        }
+    }
 }

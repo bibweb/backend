@@ -67,7 +67,7 @@ public class BookRequestServiceTest {
     }
 
     @Test
-    @WithMockUser(username = "otheruser",roles = "USER")
+    @WithMockUser(username = "otheruser", roles = "USER")
     public void getAllBookRequest_asUser_withoutRequests() {
         given(this.bookRequestRepository.findAllByUser(anyString())).willReturn(Collections.emptyList());
 
@@ -140,5 +140,55 @@ public class BookRequestServiceTest {
         final BookRequest bookRequest = new BookRequest((long) 1, "215155151", "user", BookRequestState.NEW);
 
         this.bookRequestService.updateBookRequest(bookRequest);
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    public void acceptBookRequest() {
+        final BookRequest bookRequest = new BookRequest((long) 1, "215155151", "user", BookRequestState.NEW);
+
+        given(this.bookRequestRepository.existsById((long) 1)).willReturn(true);
+        given(this.bookRequestRepository.saveAndFlush(any(BookRequest.class)))
+                .willReturn(new BookRequest((long) 1, "215155151", "user", BookRequestState.ACCEPTED));
+
+        BookRequest acceptedBookRequest = this.bookRequestService.acceptBookRequest(bookRequest);
+
+        assertEquals(BookRequestState.ACCEPTED, acceptedBookRequest.getState());
+
+    }
+
+    @Test(expected = BookRequestNotFoundException.class)
+    @WithMockUser(roles = "ADMIN")
+    public void acceptBookRequest_notFound() {
+        final BookRequest bookRequest = new BookRequest((long) 1, "215155151", "user", BookRequestState.NEW);
+
+        given(this.bookRequestRepository.existsById((long) 1)).willReturn(false);
+
+        this.bookRequestService.acceptBookRequest(bookRequest);
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    public void declineBookRequest() {
+        final BookRequest bookRequest = new BookRequest((long) 1, "215155151", "user", BookRequestState.NEW);
+
+        given(this.bookRequestRepository.existsById((long) 1)).willReturn(true);
+        given(this.bookRequestRepository.saveAndFlush(any(BookRequest.class)))
+                .willReturn(new BookRequest((long) 1, "215155151", "user", BookRequestState.DECLINED));
+
+        BookRequest acceptedBookRequest = this.bookRequestService.declineBookRequest(bookRequest);
+
+        assertEquals(BookRequestState.DECLINED, acceptedBookRequest.getState());
+
+    }
+
+    @Test(expected = BookRequestNotFoundException.class)
+    @WithMockUser(roles = "ADMIN")
+    public void declineBookRequest_notFound() {
+        final BookRequest bookRequest = new BookRequest((long) 1, "215155151", "user", BookRequestState.NEW);
+
+        given(this.bookRequestRepository.existsById((long) 1)).willReturn(false);
+
+        this.bookRequestService.declineBookRequest(bookRequest);
     }
 }
