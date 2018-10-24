@@ -14,18 +14,18 @@ public class BookController {
     private BookService bookService;
 
     @GetMapping("/book")
-    public List<Book> getAllBooks() {
+    public List<BookDTO> getAllBooks() {
         return bookService.getAllBooks();
     }
 
     @GetMapping("/book/{id}")
-    public Book getBookById(@PathVariable("id") int id) {
+    public BookDTO getBookById(@PathVariable("id") int id) {
         return bookService.getBookById((long) id);
     }
 
     @PutMapping("/book/{id}")
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
-    public void updateBook(@PathVariable("id") int id, @RequestBody Book book) {
+    public void updateBook(@PathVariable("id") int id, @RequestBody BookDTO book) {
         bookService.updateBook((long) id, book);
     }
 
