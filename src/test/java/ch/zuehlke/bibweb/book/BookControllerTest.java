@@ -40,7 +40,7 @@ public class BookControllerTest {
     @Test
     @WithMockUser(roles = "USER")
     public void whenValidId_thenBookShouldBeFound() throws Exception {
-        Book book = new Book();
+        BookDTO book = new BookDTO();
         book.setId(3000L);
         book.setTitle("Buch 1");
 
@@ -65,15 +65,15 @@ public class BookControllerTest {
     @Test
     @WithMockUser(roles = "USER")
     public void whenRequestingAllBooks_thenAllShouldBeReturned() throws Exception {
-        Book book0 = new Book();
+        BookDTO book0 = new BookDTO();
         book0.setId(0L);
         book0.setTitle("Buch 0");
 
-        Book book1 = new Book();
+        BookDTO book1 = new BookDTO();
         book1.setId(1L);
         book1.setTitle("Buch 1");
 
-        given(bookService.getAllBooks()).willReturn(new ArrayList<Book>() {{
+        given(bookService.getAllBooks()).willReturn(new ArrayList<BookDTO>() {{
             add(book0);
             add(book1);
         }});
@@ -107,11 +107,11 @@ public class BookControllerTest {
     }
 
     private void updateRequestShouldBeForbidden() throws Exception {
-        final Book book = new Book();
+        final BookDTO book = new BookDTO();
         book.setId(1L);
         book.setTitle("updatedTitle");
 
-        doNothing().when(bookService).updateBook(any(Long.class), any(Book.class));
+        doNothing().when(bookService).updateBook(any(Long.class), any(BookDTO.class));
 
         this.mvc.perform(put("/book/1")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -127,11 +127,11 @@ public class BookControllerTest {
     @Test
     @WithMockUser(roles = "ADMIN")
     public void whenUpdatingBookAndAdmin_thenShouldBeOk() throws Exception {
-        final Book book = new Book();
+        final BookDTO book = new BookDTO();
         book.setId(1L);
         book.setTitle("updatedTitle");
 
-        doNothing().when(bookService).updateBook(any(Long.class), any(Book.class));
+        doNothing().when(bookService).updateBook(any(Long.class), any(BookDTO.class));
 
         this.mvc.perform(put("/book/1")
                 .contentType(MediaType.APPLICATION_JSON)

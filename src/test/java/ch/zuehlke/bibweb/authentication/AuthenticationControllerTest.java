@@ -2,6 +2,7 @@ package ch.zuehlke.bibweb.authentication;
 
 import ch.zuehlke.bibweb.book.Book;
 import ch.zuehlke.bibweb.book.BookController;
+import ch.zuehlke.bibweb.book.BookDTO;
 import ch.zuehlke.bibweb.book.BookService;
 import ch.zuehlke.bibweb.config.TokenProvider;
 import org.junit.Before;
@@ -61,15 +62,15 @@ public class AuthenticationControllerTest {
 
     @Test
     public void whenNoTokenSubmitted_thenStatusIsUnauthorized() throws Exception {
-        Book book0 = new Book();
+        BookDTO book0 = new BookDTO();
         book0.setId(0L);
         book0.setTitle("Buch 0");
 
-        Book book1 = new Book();
+        BookDTO book1 = new BookDTO();
         book1.setId(1L);
         book1.setTitle("Buch 1");
 
-        given(bookService.getAllBooks()).willReturn(new ArrayList<Book>() {{
+        given(bookService.getAllBooks()).willReturn(new ArrayList<BookDTO>() {{
             add(book0);
             add(book1);
         }});
@@ -82,15 +83,15 @@ public class AuthenticationControllerTest {
     @Test
     @Ignore("not yet working")
     public void whenTokenSubmitted_thenStatusIsOk() throws Exception {
-        Book book0 = new Book();
+        BookDTO book0 = new BookDTO();
         book0.setId(0L);
         book0.setTitle("Buch 0");
 
-        Book book1 = new Book();
+        BookDTO book1 = new BookDTO();
         book1.setId(1L);
         book1.setTitle("Buch 1");
 
-        given(bookService.getAllBooks()).willReturn(new ArrayList<Book>() {{
+        given(bookService.getAllBooks()).willReturn(new ArrayList<BookDTO>() {{
             add(book0);
             add(book1);
         }});
