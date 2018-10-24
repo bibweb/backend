@@ -13,4 +13,4 @@ ALTER TABLE reservation ADD CONSTRAINT res_user_id FOREIGN KEY(user_id) REFERENC
 INSERT INTO reservation(id, book_id, user_id, reserved_at, active) VALUES(1, 12, 1, NOW(), true),
 (2, 13, 1, NOW(), false),
 (3, 15, 2, NOW(), true),
-(4, 19, 4, NOW(), true),
+(4, 19, 4, NOW(), true);
