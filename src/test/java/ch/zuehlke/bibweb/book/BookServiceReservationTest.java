@@ -8,6 +8,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestConfiguration;
@@ -102,7 +103,9 @@ public class BookServiceReservationTest {
     @Test
     @WithUserDetails(value = "Stefan", userDetailsServiceBeanName = "userDetailsService")
     public void whenReservingBook_thenCreateNewReservationIfAvailable() {
-        final long bookId = 1L;
+        final Book book = new Book();
+        book.setId(1L);
+
         User user = new User();
         user.setId(1L);
         user.setUsername("Etienne");
@@ -111,13 +114,14 @@ public class BookServiceReservationTest {
         reservation.setUser(user);
         reservation.setActive(false);
 
+        Mockito.when(bookRepository.findById(book.getId())).thenReturn(Optional.of(book));
         Mockito.when(reservationRepository.findTop1ByBookIdOrderByReservedAtDesc(1L)).thenReturn(Optional.of(reservation));
 
-        bookService.reserveBook(bookId);
+        bookService.reserveBook(book.getId());
 
         ArgumentCaptor<Reservation> capture = ArgumentCaptor.forClass(Reservation.class);
         Mockito.verify(reservationRepository, Mockito.times(1)).saveAndFlush(capture.capture());
-        Assert.assertEquals(bookId, (long) capture.getValue().getBookId());
+        Assert.assertEquals((long) book.getId(), (long) capture.getValue().getBookId());
         Assert.assertEquals(2L, (long) capture.getValue().getUser().getId()); // ID of user Stefan is == 2
         Assert.assertEquals("Stefan", capture.getValue().getUser().getUsername());
     }
@@ -125,7 +129,9 @@ public class BookServiceReservationTest {
     @Test(expected = BookCannotBeReservedException.class)
     @WithUserDetails(value = "Stefan", userDetailsServiceBeanName = "userDetailsService")
     public void whenReservingBook_thenThrowErrorIfBookAlreadyReservedByOtherUser() {
-        final long bookId = 1L;
+        final Book book = new Book();
+        book.setId(1L);
+
         User user = new User();
         user.setId(1L);
         user.setUsername("Etienne");
@@ -134,18 +140,21 @@ public class BookServiceReservationTest {
         reservation.setUser(user);
         reservation.setActive(true);
 
+        Mockito.when(bookRepository.findById(book.getId())).thenReturn(Optional.of(book));
         Mockito.when(reservationRepository.findTop1ByBookIdOrderByReservedAtDesc(1L)).thenReturn(Optional.of(reservation));
 
         Mockito.verify(reservationRepository, Mockito.times(0)).saveAndFlush(any(Reservation.class));
         Mockito.verify(reservationRepository, Mockito.times(0)).save(any(Reservation.class));
 
-        bookService.reserveBook(bookId);
+        bookService.reserveBook(book.getId());
     }
 
     @Test(expected = ReservationAlreadyExistsForUser.class)
     @WithUserDetails(value = "Stefan", userDetailsServiceBeanName = "userDetailsService")
     public void whenReservingBook_thenReturnOldReservationIfAlreadyReservedBySameUser() {
-        final long bookId = 1L;
+        final Book book = new Book();
+        book.setId(1L);
+
         User user = new User();
         user.setId(2L);
         user.setUsername("Stefan");
@@ -155,8 +164,30 @@ public class BookServiceReservationTest {
         reservation.setUser(user);
         reservation.setActive(true);
 
+        Mockito.when(bookRepository.findById(book.getId())).thenReturn(Optional.of(book));
         Mockito.when(reservationRepository.findTop1ByBookIdOrderByReservedAtDesc(1L)).thenReturn(Optional.of(reservation));
 
-        bookService.reserveBook(bookId);
+        bookService.reserveBook(book.getId());
+    }
+
+    @Test(expected = BookNotFoundExcpetion.class)
+    @WithUserDetails(value = "Stefan", userDetailsServiceBeanName = "userDetailsService")
+    public void whenReservingBookAndBookDoesNotExists_thenThrowBookNotFoundException() {
+        final Book book = new Book();
+        book.setId(1L);
+
+        User user = new User();
+        user.setId(2L);
+        user.setUsername("Stefan");
+
+        Reservation reservation = new Reservation();
+        reservation.setId(23L);
+        reservation.setUser(user);
+        reservation.setActive(true);
+
+        Mockito.when(bookRepository.findById(book.getId())).thenThrow(BookNotFoundExcpetion.class);
+        Mockito.when(reservationRepository.findTop1ByBookIdOrderByReservedAtDesc(1L)).thenReturn(Optional.of(reservation));
+
+        bookService.reserveBook(book.getId());
     }
 }

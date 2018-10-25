@@ -50,12 +50,15 @@ public class BookService {
         }
     }
 
-    public Reservation reserveBook(Long bookId) throws BookCannotBeReservedException, ReservationAlreadyExistsForUser {
+    public Reservation reserveBook(Long bookId) throws BookCannotBeReservedException, ReservationAlreadyExistsForUser, BookNotFoundExcpetion {
         BookAvailabilityState availabilityState = getAvailabilityBasedOnReservations(bookId);
+
+        final BookDTO book = getBookById(bookId);
+
         if(availabilityState.equals(BookAvailabilityState.AVAILABLE)) {
             Reservation res = new Reservation();
             res.setActive(true);
-            res.setBookId(bookId);
+            res.setBookId(book.getId());
             res.setUser(UserSecurityUtil.getCurrentUser());
 
             res = reservationRepository.saveAndFlush(res);
