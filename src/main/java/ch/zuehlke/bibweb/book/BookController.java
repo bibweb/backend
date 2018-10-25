@@ -13,23 +13,23 @@ public class BookController {
     @Autowired
     private BookService bookService;
 
-    @GetMapping("/book")
+    @GetMapping("/books")
     public List<BookDTO> getAllBooks() {
         return bookService.getAllBooks();
     }
 
-    @GetMapping("/book/{id}")
+    @GetMapping("/books/{id}")
     public BookDTO getBookById(@PathVariable("id") int id) {
         return bookService.getBookById((long) id);
     }
 
-    @PutMapping("/book/{id}")
+    @PutMapping("/books/{id}")
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public void updateBook(@PathVariable("id") int id, @RequestBody BookDTO book) {
         bookService.updateBook((long) id, book);
     }
 
-    @PostMapping("/book/{id}/reserve")
+    @PostMapping("/books/{id}/reservations")
     @ResponseStatus(HttpStatus.CREATED)
     public void createReservationForBookd(@PathVariable("id") int id) {
         bookService.reserveBook((long) id);
