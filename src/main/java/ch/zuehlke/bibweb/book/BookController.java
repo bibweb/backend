@@ -29,6 +29,22 @@ public class BookController {
         bookService.updateBook((long) id, book);
     }
 
+    @PostMapping("/book/{id}/reserve")
+    @ResponseStatus(HttpStatus.CREATED)
+    public void createReservationForBookd(@PathVariable("id") int id) {
+        bookService.reserveBook((long) id);
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void reservationAlreadyExists(ReservationAlreadyExistsForUser ex){
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public void bookIsReservedByAnotherUser(BookCannotBeReservedException ex) {
+    }
+
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
     private void bookNotFound(BookNotFoundExcpetion ex) {

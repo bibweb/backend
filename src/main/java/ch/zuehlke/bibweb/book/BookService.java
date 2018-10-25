@@ -50,6 +50,24 @@ public class BookService {
         }
     }
 
+    public Reservation reserveBook(Long bookId) throws BookCannotBeReservedException, ReservationAlreadyExistsForUser {
+        BookAvailabilityState availabilityState = getAvailabilityBasedOnReservations(bookId);
+        if(availabilityState.equals(BookAvailabilityState.AVAILABLE)) {
+            Reservation res = new Reservation();
+            res.setActive(true);
+            res.setBookId(bookId);
+            res.setUser(UserSecurityUtil.getCurrentUser());
+
+            res = reservationRepository.saveAndFlush(res);
+            return res;
+        }
+        if(availabilityState.equals(BookAvailabilityState.RESERVED_BY_YOU)) {
+            throw new ReservationAlreadyExistsForUser();
+        }
+
+        throw new BookCannotBeReservedException();
+    }
+
     private BookAvailabilityState getAvailabilityBasedOnReservations(Long bookId) {
         BookAvailabilityState retVal = BookAvailabilityState.AVAILABLE;
 
@@ -58,7 +76,7 @@ public class BookService {
             if (reservation.get().getActive() == false) {
                 retVal = BookAvailabilityState.AVAILABLE;
             } else {
-                if (reservation.get().getUser().getUsername().equals(UserSecurityUtil.currentUserName())) {
+                if (reservation.get().getUser().getId().equals(UserSecurityUtil.getCurrentUser().getId())) {
                     retVal = BookAvailabilityState.RESERVED_BY_YOU;
                 } else {
                     retVal = BookAvailabilityState.UNAVAILABLE;

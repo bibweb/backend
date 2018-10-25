@@ -3,6 +3,7 @@ import ch.zuehlke.bibweb.config.WebSecurityTestConfig;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -20,8 +21,7 @@ import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doNothing;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -139,6 +139,32 @@ public class BookControllerTest {
                 .andExpect(status().isOk());
     }
 
+    @Test
+    @WithMockUser(authorities = "ROLE_USER")
+    public void whenReservingBook_thenStatusShouldIsCreated() throws Exception {
+        this.mvc.perform(post("/book/1/reserve")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isCreated());
+    }
 
+    @Test
+    @WithMockUser(authorities = "ROLE_USER")
+    public void whenReservingBookAndNotPossible_thenStatusShouldBeForbidden() throws Exception {
+        Mockito.when(bookService.reserveBook(1L)).thenThrow(BookCannotBeReservedException.class);
+
+        this.mvc.perform(post("/book/1/reserve")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @WithMockUser(authorities = "ROLE_USER")
+    public void whenReservingBookAndAlreadyExistsForUser_thenStatusShouldBeNoContent() throws Exception {
+        Mockito.when(bookService.reserveBook(1L)).thenThrow(ReservationAlreadyExistsForUser.class);
+
+        this.mvc.perform(post("/book/1/reserve")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNoContent());
+    }
 
 }

@@ -3,6 +3,7 @@ package ch.zuehlke.bibweb.reservation;
 import ch.zuehlke.bibweb.user.User;
 
 import javax.persistence.*;
+import java.time.Instant;
 import java.util.Date;
 
 @Entity
@@ -26,6 +27,10 @@ public class Reservation {
 
     @Column(name="active")
     private Boolean active;
+
+    public Reservation() {
+        this.reservedAt = Date.from(Instant.now());
+    }
 
     public Long getId() {
         return id;
