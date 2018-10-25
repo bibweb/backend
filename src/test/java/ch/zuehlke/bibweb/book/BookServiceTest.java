@@ -50,18 +50,18 @@ public class BookServiceTest {
 
     @Test
     public void whenGetAllBooks_thenCorrectDTOsShouldBeReturned() {
-        Book book1 = BookUtil.buildBook(1L, "Title1", "978-3-12-732320-7", 123, 1999, BookType.COMEDY);
-        Book book2 = BookUtil.buildBook(2L, "Name2", "3-680-08783-7", 321, 2018, BookType.THRILLER);
-        Book book3 = BookUtil.buildBook(3L, "Buch", "978-3-86680-192-9", 111, 1965, BookType.UNKNOWN);
+        Book book1 = BookTestUtil.buildBook(1L, "Title1", "978-3-12-732320-7", 123, 1999, BookType.COMEDY);
+        Book book2 = BookTestUtil.buildBook(2L, "Name2", "3-680-08783-7", 321, 2018, BookType.THRILLER);
+        Book book3 = BookTestUtil.buildBook(3L, "Buch", "978-3-86680-192-9", 111, 1965, BookType.UNKNOWN);
 
         Mockito.when(bookRepository.findAll()).thenReturn(Arrays.asList(new Book[]{book1, book2, book3}));
 
         List<BookDTO> bookList = bookService.getAllBooks();
 
         Assert.assertEquals(3, bookList.size());
-        Assert.assertTrue(BookUtil.compareBookWithBookDTO(book1, BookUtil.getDTOFromBookEntity(book1)));
-        Assert.assertTrue(BookUtil.compareBookWithBookDTO(book2, BookUtil.getDTOFromBookEntity(book2)));
-        Assert.assertTrue(BookUtil.compareBookWithBookDTO(book3, BookUtil.getDTOFromBookEntity(book3)));
+        Assert.assertTrue(BookTestUtil.compareBookWithBookDTO(book1, BookTestUtil.getDTOFromBookEntity(book1)));
+        Assert.assertTrue(BookTestUtil.compareBookWithBookDTO(book2, BookTestUtil.getDTOFromBookEntity(book2)));
+        Assert.assertTrue(BookTestUtil.compareBookWithBookDTO(book3, BookTestUtil.getDTOFromBookEntity(book3)));
     }
 
     @Test

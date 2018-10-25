@@ -1,6 +1,6 @@
 package ch.zuehlke.bibweb.book;
 
-public class BookUtil {
+public class BookTestUtil {
 
     public static Book buildBook(Long id, String title, String isbn, int numberOfPages, int releaseYear, BookType bookType) {
         Book book = new Book();
