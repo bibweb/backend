@@ -24,7 +24,7 @@ stages:
           
   - name: retrieve book list
     request:
-      url: "{host:s}/book"
+      url: "{host:s}/books"
       headers:
         content-type: application/json
         Authorization: "Bearer {test_login_token:s}"
