@@ -1,4 +1,5 @@
 package ch.zuehlke.bibweb.book;
+import ch.zuehlke.bibweb.book.exception.*;
 import ch.zuehlke.bibweb.config.WebSecurityTestConfig;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
@@ -46,7 +47,7 @@ public class BookControllerTest {
 
         given(bookService.getBookById(3000L)).willReturn(book);
 
-        mvc.perform(get("/book/3000")
+        mvc.perform(get("/books/3000")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.title", is(book.getTitle())));
@@ -55,9 +56,9 @@ public class BookControllerTest {
     @Test
     @WithMockUser(roles = "USER")
     public void whenNonExistingId_thenStatusIsNotFound() throws Exception {
-        given(bookService.getBookById(3000L)).willThrow(BookNotFoundExcpetion.class);
+        given(bookService.getBookById(3000L)).willThrow(BookNotFoundException.class);
 
-        mvc.perform(get("/book/3000")
+        mvc.perform(get("/books/3000")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
     }
@@ -78,7 +79,7 @@ public class BookControllerTest {
             add(book1);
         }});
 
-        mvc.perform(get("/book")
+        mvc.perform(get("/books")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)))
@@ -88,14 +89,14 @@ public class BookControllerTest {
 
     @Test
     public void whenRequestingAllBooksAndNotAuthenticated_thenShouldBeForbidden() throws Exception {
-        mvc.perform(get("/book")
+        mvc.perform(get("/books")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isForbidden());
     }
 
     @Test
     public void whenRequestingABookAndNotAuthenticated_thenShouldBeForbidden() throws Exception {
-        mvc.perform(get("/book/1")
+        mvc.perform(get("/books/1")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isForbidden());
     }
@@ -113,7 +114,7 @@ public class BookControllerTest {
 
         doNothing().when(bookService).updateBook(any(Long.class), any(BookDTO.class));
 
-        this.mvc.perform(put("/book/1")
+        this.mvc.perform(put("/books/1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(new ObjectMapper().writeValueAsString(book)))
                 .andExpect(status().isForbidden());
@@ -133,7 +134,7 @@ public class BookControllerTest {
 
         doNothing().when(bookService).updateBook(any(Long.class), any(BookDTO.class));
 
-        this.mvc.perform(put("/book/1")
+        this.mvc.perform(put("/books/1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(new ObjectMapper().writeValueAsString(book)))
                 .andExpect(status().isOk());
@@ -142,7 +143,7 @@ public class BookControllerTest {
     @Test
     @WithMockUser(authorities = "ROLE_USER")
     public void whenReservingBook_thenStatusShouldIsCreated() throws Exception {
-        this.mvc.perform(post("/book/1/reserve")
+        this.mvc.perform(put("/books/1/reservations")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated());
     }
@@ -152,7 +153,7 @@ public class BookControllerTest {
     public void whenReservingBookAndNotPossible_thenStatusShouldBeForbidden() throws Exception {
         Mockito.when(bookService.reserveBook(1L)).thenThrow(BookCannotBeReservedException.class);
 
-        this.mvc.perform(post("/book/1/reserve")
+        this.mvc.perform(put("/books/1/reservations")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isForbidden());
     }
@@ -160,11 +161,38 @@ public class BookControllerTest {
     @Test
     @WithMockUser(authorities = "ROLE_USER")
     public void whenReservingBookAndAlreadyExistsForUser_thenStatusShouldBeNoContent() throws Exception {
-        Mockito.when(bookService.reserveBook(1L)).thenThrow(ReservationAlreadyExistsForUser.class);
+        Mockito.when(bookService.reserveBook(1L)).thenThrow(ReservationAlreadyExistsForUserException.class);
 
-        this.mvc.perform(post("/book/1/reserve")
+        this.mvc.perform(put("/books/1/reservations")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
     }
 
+    @Test
+    @WithMockUser(authorities = "ROLE_USER")
+    public void whenDeletingReservationForOtherUser_thenStatusShouldBeForbidden() throws Exception {
+        Mockito.doThrow(CannotDeleteReservationForOtherUserException.class).when(bookService).deleteActiveReservationForBook(1L);
+
+        this.mvc.perform(delete("/books/1/reservations")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @WithMockUser(authorities = "ROLE_USER")
+    public void whenDeletingNonExistingReservation_thenStatusShouldBeNotFound() throws Exception {
+        Mockito.doThrow(ReservationDoesNotExistException.class).when(bookService).deleteActiveReservationForBook(1L);
+
+        this.mvc.perform(delete("/books/1/reservations")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @WithMockUser(authorities = "ROLE_USER")
+    public void whenDeletingExistingReservation_thenStatusShouldBeNoContent() throws Exception {
+        this.mvc.perform(delete("/books/1/reservations")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNoContent());
+    }
 }

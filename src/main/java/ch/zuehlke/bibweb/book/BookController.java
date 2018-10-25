@@ -1,5 +1,6 @@
 package ch.zuehlke.bibweb.book;
 
+import ch.zuehlke.bibweb.book.exception.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -29,15 +30,29 @@ public class BookController {
         bookService.updateBook((long) id, book);
     }
 
-    @PostMapping("/books/{id}/reservations")
+    @PutMapping("/books/{id}/reservations")
     @ResponseStatus(HttpStatus.CREATED)
-    public void createReservationForBookd(@PathVariable("id") int id) {
+    public void createReservationForBook(@PathVariable("id") int id) {
         bookService.reserveBook((long) id);
+    }
+
+    @DeleteMapping("/books/{id}/reservations")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteActiveReservationForBook(@PathVariable("id") int id) { bookService.deleteActiveReservationForBook((long) id); }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public void reservationBelongsToOtherUser(CannotDeleteReservationForOtherUserException ex){
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public void reservationDoesNotExist(ReservationDoesNotExistException ex){
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void reservationAlreadyExists(ReservationAlreadyExistsForUser ex){
+    public void reservationAlreadyExists(ReservationAlreadyExistsForUserException ex){
     }
 
     @ExceptionHandler
@@ -47,7 +62,7 @@ public class BookController {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    private void bookNotFound(BookNotFoundExcpetion ex) {
+    private void bookNotFound(BookNotFoundException ex) {
     }
 
 }
