@@ -16,9 +16,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
-
-import static org.hamcrest.Matchers.anyOf;
 
 @RunWith(SpringRunner.class)
 public class BookServiceTest {
@@ -46,6 +46,22 @@ public class BookServiceTest {
         book.setTitle("Testbook 1");
 
         Mockito.when(bookRepository.findById(1L)).thenReturn(Optional.of(book));
+    }
+
+    @Test
+    public void whenGetAllBooks_thenCorrectDTOsShouldBeReturned() {
+        Book book1 = BookUtil.buildBook(1L, "Title1", "978-3-12-732320-7", 123, 1999, BookType.COMEDY);
+        Book book2 = BookUtil.buildBook(2L, "Name2", "3-680-08783-7", 321, 2018, BookType.THRILLER);
+        Book book3 = BookUtil.buildBook(3L, "Buch", "978-3-86680-192-9", 111, 1965, BookType.UNKNOWN);
+
+        Mockito.when(bookRepository.findAll()).thenReturn(Arrays.asList(new Book[]{book1, book2, book3}));
+
+        List<BookDTO> bookList = bookService.getAllBooks();
+
+        Assert.assertEquals(3, bookList.size());
+        Assert.assertTrue(BookUtil.compareBookWithBookDTO(book1, BookUtil.getDTOFromBookEntity(book1)));
+        Assert.assertTrue(BookUtil.compareBookWithBookDTO(book2, BookUtil.getDTOFromBookEntity(book2)));
+        Assert.assertTrue(BookUtil.compareBookWithBookDTO(book3, BookUtil.getDTOFromBookEntity(book3)));
     }
 
     @Test
@@ -104,7 +120,7 @@ public class BookServiceTest {
     }
 
     @Test
-    @WithMockUser(username="Stefan")
+    @WithMockUser(username = "Stefan")
     public void whenRequestingBook_thenReturnAvailableIfNoReservationsYet() {
         Book book = new Book();
         book.setId(1L);
