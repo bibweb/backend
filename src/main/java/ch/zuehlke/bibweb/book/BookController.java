@@ -30,34 +30,34 @@ public class BookController {
         bookService.updateBook((long) id, book);
     }
 
-    @PutMapping("/books/{id}/reservations")
+    @PutMapping("/books/{id}/checkouts")
     @ResponseStatus(HttpStatus.CREATED)
-    public void createReservationForBook(@PathVariable("id") int id) {
-        bookService.reserveBook((long) id);
+    public void checkoutBook(@PathVariable("id") int id) {
+        bookService.checkoutBook((long) id);
     }
 
-    @DeleteMapping("/books/{id}/reservations")
+    @DeleteMapping("/books/{id}/checkouts")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteActiveReservationForBook(@PathVariable("id") int id) { bookService.deleteActiveReservationForBook((long) id); }
+    public void returnBook(@PathVariable("id") int id) { bookService.returnBook((long) id); }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.FORBIDDEN)
-    public void reservationBelongsToOtherUser(CannotDeleteReservationForOtherUserException ex){
+    public void checkoutBelongsToOtherUser(CannotDeleteCheckoutForOtherUserException ex){
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public void reservationDoesNotExist(ReservationDoesNotExistException ex){
+    public void checkoutDoesNotExist(CheckoutDoesNotExistException ex){
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void reservationAlreadyExists(ReservationAlreadyExistsForUserException ex){
+    public void checkoutAlreadyExists(CheckoutAlreadyExistsForUserException ex){
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.FORBIDDEN)
-    public void bookIsReservedByAnotherUser(BookCannotBeReservedException ex) {
+    public void bookIsCheckedoutByAnotherUser(BookCannotBeCheckedOut ex) {
     }
 
     @ExceptionHandler

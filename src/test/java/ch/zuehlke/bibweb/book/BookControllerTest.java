@@ -142,56 +142,56 @@ public class BookControllerTest {
 
     @Test
     @WithMockUser(authorities = "ROLE_USER")
-    public void whenReservingBook_thenStatusShouldIsCreated() throws Exception {
-        this.mvc.perform(put("/books/1/reservations")
+    public void whenCheckingOutBook_thenStatusShouldBeIsCreated() throws Exception {
+        this.mvc.perform(put("/books/1/checkouts")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated());
     }
 
     @Test
     @WithMockUser(authorities = "ROLE_USER")
-    public void whenReservingBookAndNotPossible_thenStatusShouldBeForbidden() throws Exception {
-        Mockito.when(bookService.reserveBook(1L)).thenThrow(BookCannotBeReservedException.class);
+    public void whenCheckingOutBookAndNotPossible_thenStatusShouldBeForbidden() throws Exception {
+        Mockito.when(bookService.checkoutBook(1L)).thenThrow(BookCannotBeCheckedOut.class);
 
-        this.mvc.perform(put("/books/1/reservations")
+        this.mvc.perform(put("/books/1/checkouts")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isForbidden());
     }
 
     @Test
     @WithMockUser(authorities = "ROLE_USER")
-    public void whenReservingBookAndAlreadyExistsForUser_thenStatusShouldBeNoContent() throws Exception {
-        Mockito.when(bookService.reserveBook(1L)).thenThrow(ReservationAlreadyExistsForUserException.class);
+    public void whenCheckingOutBookAndAlreadyExistsForUser_thenStatusShouldBeNoContent() throws Exception {
+        Mockito.when(bookService.checkoutBook(1L)).thenThrow(CheckoutAlreadyExistsForUserException.class);
 
-        this.mvc.perform(put("/books/1/reservations")
+        this.mvc.perform(put("/books/1/checkouts")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
     }
 
     @Test
     @WithMockUser(authorities = "ROLE_USER")
-    public void whenDeletingReservationForOtherUser_thenStatusShouldBeForbidden() throws Exception {
-        Mockito.doThrow(CannotDeleteReservationForOtherUserException.class).when(bookService).deleteActiveReservationForBook(1L);
+    public void whenDeletingCheckoutForOtherUser_thenStatusShouldBeForbidden() throws Exception {
+        Mockito.doThrow(CannotDeleteCheckoutForOtherUserException.class).when(bookService).returnBook(1L);
 
-        this.mvc.perform(delete("/books/1/reservations")
+        this.mvc.perform(delete("/books/1/checkouts")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isForbidden());
     }
 
     @Test
     @WithMockUser(authorities = "ROLE_USER")
-    public void whenDeletingNonExistingReservation_thenStatusShouldBeNotFound() throws Exception {
-        Mockito.doThrow(ReservationDoesNotExistException.class).when(bookService).deleteActiveReservationForBook(1L);
+    public void whenDeletingNonExistingCheckout_thenStatusShouldBeNotFound() throws Exception {
+        Mockito.doThrow(CheckoutDoesNotExistException.class).when(bookService).returnBook(1L);
 
-        this.mvc.perform(delete("/books/1/reservations")
+        this.mvc.perform(delete("/books/1/checkouts")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
     }
 
     @Test
     @WithMockUser(authorities = "ROLE_USER")
-    public void whenDeletingExistingReservation_thenStatusShouldBeNoContent() throws Exception {
-        this.mvc.perform(delete("/books/1/reservations")
+    public void whenDeletingExistingCheckout_thenStatusShouldBeNoContent() throws Exception {
+        this.mvc.perform(delete("/books/1/checkouts")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
     }

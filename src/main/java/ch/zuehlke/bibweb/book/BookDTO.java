@@ -8,11 +8,11 @@ public class BookDTO {
     private Integer releaseYear;
     private Integer numberOfPages;
     private BookType bookType;
-    private BookAvailabilityState availability;
+    private BookCheckoutState availability;
 
     public BookDTO() {
         this.bookType = BookType.UNKNOWN;
-        this.availability = BookAvailabilityState.UNAVAILABLE;
+        this.availability = BookCheckoutState.UNAVAILABLE;
         this.numberOfPages = -1;
         this.releaseYear = -1;
     }
@@ -65,11 +65,11 @@ public class BookDTO {
         this.bookType = bookType;
     }
 
-    public BookAvailabilityState getAvailability() {
+    public BookCheckoutState getAvailability() {
         return availability;
     }
 
-    public void setAvailability(BookAvailabilityState availability) {
+    public void setAvailability(BookCheckoutState availability) {
         this.availability = availability;
     }
 }

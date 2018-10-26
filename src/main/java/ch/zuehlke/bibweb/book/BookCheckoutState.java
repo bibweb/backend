@@ -3,8 +3,8 @@ package ch.zuehlke.bibweb.book;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 @JsonFormat(shape = JsonFormat.Shape.NUMBER_INT)
-public enum BookAvailabilityState {
+public enum BookCheckoutState {
     AVAILABLE,
     UNAVAILABLE,
-    RESERVED_BY_YOU
+    CHECKEDOUT_BY_YOU
 }

@@ -1,7 +1,7 @@
 package ch.zuehlke.bibweb.book;
 
 import ch.zuehlke.bibweb.book.exception.BookNotFoundException;
-import ch.zuehlke.bibweb.reservation.ReservationRepository;
+import ch.zuehlke.bibweb.checkout.CheckoutRepository;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -33,7 +33,7 @@ public class BookServiceTest {
     private BookRepository bookRepository;
 
     @MockBean
-    ReservationRepository reservationRepository;
+    CheckoutRepository checkoutRepository;
 
     @Autowired
     private BookService bookService;

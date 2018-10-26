@@ -1,13 +1,12 @@
 package ch.zuehlke.bibweb.book;
 
 import ch.zuehlke.bibweb.config.UserDetailTestService;
-import ch.zuehlke.bibweb.reservation.Reservation;
-import ch.zuehlke.bibweb.reservation.ReservationRepository;
+import ch.zuehlke.bibweb.checkout.Checkout;
+import ch.zuehlke.bibweb.checkout.CheckoutRepository;
 import ch.zuehlke.bibweb.user.User;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestConfiguration;
@@ -41,7 +40,7 @@ public class BookAvailabilityTests {
     private BookRepository bookRepository;
 
     @MockBean
-    ReservationRepository reservationRepository;
+    CheckoutRepository checkoutRepository;
 
     @Autowired
     private BookService bookService;
@@ -49,39 +48,39 @@ public class BookAvailabilityTests {
     @Test
     @WithUserDetails(value = "Stefan", userDetailsServiceBeanName = "userDetailsService")
     public void whenRequestingBook_thenReturnUnavailableIfOtherUserHasBookReserved() {
-        testAvailabilityWithPresentReservation(BookAvailabilityState.UNAVAILABLE, true);
+        testAvailabilityWithPresentCheckout(BookCheckoutState.UNAVAILABLE, true);
     }
 
     @Test
     @WithUserDetails(value = "Etienne", userDetailsServiceBeanName = "userDetailsService")
     public void whenRequestingBook_thenReturnReservedByYouIfUserHasBookReserved() {
-        testAvailabilityWithPresentReservation(BookAvailabilityState.RESERVED_BY_YOU, true);
+        testAvailabilityWithPresentCheckout(BookCheckoutState.CHECKEDOUT_BY_YOU, true);
     }
 
     @Test
     @WithUserDetails(value = "Etienne", userDetailsServiceBeanName = "userDetailsService")
-    public void whenRequestingBook_thenReturnAvailableIfNotLastReservationIsNotActiveSameUser() {
-        testAvailabilityWithPresentReservation(BookAvailabilityState.AVAILABLE, false);
+    public void whenRequestingBook_thenReturnAvailableIfNotLastCheckoutIsNotReturnedSameUser() {
+        testAvailabilityWithPresentCheckout(BookCheckoutState.AVAILABLE, false);
     }
 
     @Test
     @WithUserDetails(value = "Stefan", userDetailsServiceBeanName = "userDetailsService")
-    public void whenRequestingBook_thenReturnAvailableIfNotLastReservationIsNotActiveDifferentUser() {
-        testAvailabilityWithPresentReservation(BookAvailabilityState.AVAILABLE, false);
+    public void whenRequestingBook_thenReturnAvailableIfNotLastCheckoutIsNotReturnedDifferentUser() {
+        testAvailabilityWithPresentCheckout(BookCheckoutState.AVAILABLE, false);
     }
 
     @Test
     @WithUserDetails(value = "Stefan", userDetailsServiceBeanName = "userDetailsService")
-    public void whenRequestingBook_thenReturnAvailableIfNoReservationsYet() {
+    public void whenRequestingBook_thenReturnAvailableIfNoCheckoutsYet() {
         Book book = new Book();
         book.setId(1L);
 
         Mockito.when(bookRepository.findById(1L)).thenReturn(Optional.of(book));
 
-        Assert.assertEquals(BookAvailabilityState.AVAILABLE, bookService.getBookById(1L).getAvailability());
+        Assert.assertEquals(BookCheckoutState.AVAILABLE, bookService.getBookById(1L).getAvailability());
     }
 
-    private void testAvailabilityWithPresentReservation(BookAvailabilityState expected, Boolean active) {
+    private void testAvailabilityWithPresentCheckout(BookCheckoutState expected, Boolean active) {
         Book book = new Book();
         book.setId(1L);
 
@@ -89,12 +88,12 @@ public class BookAvailabilityTests {
         user.setUsername("Etienne");
         user.setId(1L);
 
-        Reservation reservation = new Reservation();
-        reservation.setUser(user);
-        reservation.setActive(active);
+        Checkout checkout = new Checkout();
+        checkout.setUserId(user.getId());
+        checkout.setStillOut(active);
 
         Mockito.when(bookRepository.findById(1L)).thenReturn(Optional.of(book));
-        Mockito.when(reservationRepository.findTop1ByBookIdOrderByReservedAtDesc(1L)).thenReturn(Optional.of(reservation));
+        Mockito.when(checkoutRepository.findTop1ByBookIdOrderByCheckoutDateAtDesc(1L)).thenReturn(Optional.of(checkout));
 
         Assert.assertEquals(expected, bookService.getBookById(1L).getAvailability());
     }
