@@ -1,5 +1,6 @@
 package ch.zuehlke.bibweb.book;
 
+import ch.zuehlke.bibweb.book.exception.*;
 import ch.zuehlke.bibweb.reservation.Reservation;
 import ch.zuehlke.bibweb.reservation.ReservationRepository;
 import ch.zuehlke.bibweb.user.UserSecurityUtil;
@@ -25,11 +26,11 @@ public class BookService {
         return bookRepository.findAll().stream().map(book -> mapBookToBookDTO(book)).collect(Collectors.toList());
     }
 
-    public BookDTO getBookById(Long id) throws BookNotFoundExcpetion {
+    public BookDTO getBookById(Long id) throws BookNotFoundException {
         Optional<Book> book = bookRepository.findById(id);
         if (book.isPresent()) return mapBookToBookDTO(book.get());
 
-        throw new BookNotFoundExcpetion();
+        throw new BookNotFoundException();
     }
 
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
@@ -50,12 +51,12 @@ public class BookService {
         }
     }
 
-    public Reservation reserveBook(Long bookId) throws BookCannotBeReservedException, ReservationAlreadyExistsForUser, BookNotFoundExcpetion {
+    public Reservation reserveBook(Long bookId) throws BookCannotBeReservedException, ReservationAlreadyExistsForUserException, BookNotFoundException {
         BookAvailabilityState availabilityState = getAvailabilityBasedOnReservations(bookId);
 
         final BookDTO book = getBookById(bookId);
 
-        if(availabilityState.equals(BookAvailabilityState.AVAILABLE)) {
+        if (availabilityState.equals(BookAvailabilityState.AVAILABLE)) {
             Reservation res = new Reservation();
             res.setActive(true);
             res.setBookId(book.getId());
@@ -64,8 +65,8 @@ public class BookService {
             res = reservationRepository.saveAndFlush(res);
             return res;
         }
-        if(availabilityState.equals(BookAvailabilityState.RESERVED_BY_YOU)) {
-            throw new ReservationAlreadyExistsForUser();
+        if (availabilityState.equals(BookAvailabilityState.RESERVED_BY_YOU)) {
+            throw new ReservationAlreadyExistsForUserException();
         }
 
         throw new BookCannotBeReservedException();
@@ -99,5 +100,23 @@ public class BookService {
         BeanUtils.copyProperties(book, dto);
         dto.setAvailability(checkAvailability(dto.getId()));
         return dto;
+    }
+
+    public void deleteActiveReservationForBook(long bookId) throws ReservationDoesNotExistException, CannotDeleteReservationForOtherUserException {
+        Optional<Reservation> reservation = reservationRepository.findTop1ByBookIdOrderByReservedAtDesc(bookId);
+
+        if (!reservation.isPresent()) throw new ReservationDoesNotExistException();
+        Reservation res = reservation.get();
+
+        if (res.getUser().getId().equals(UserSecurityUtil.getCurrentUser().getId())) {
+            if(res.getActive()) {
+                res.setActive(false);
+                reservationRepository.saveAndFlush(res);
+            } else {
+                throw new ReservationDoesNotExistException();
+            }
+        } else {
+            throw new CannotDeleteReservationForOtherUserException();
+        }
     }
 }

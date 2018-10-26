@@ -6,7 +6,7 @@ includes:
 stages:
   - name: Access to books list is unauthorized
     request:
-      url: "{host:s}/book"
+      url: "{host:s}/books"
       method: GET
       verify: false
     response:

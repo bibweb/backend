@@ -1,5 +1,6 @@
 package ch.zuehlke.bibweb.book;
 
+import ch.zuehlke.bibweb.book.exception.*;
 import ch.zuehlke.bibweb.config.UserDetailTestService;
 import ch.zuehlke.bibweb.reservation.Reservation;
 import ch.zuehlke.bibweb.reservation.ReservationRepository;
@@ -9,6 +10,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestConfiguration;
@@ -96,14 +98,9 @@ public class BookReservationTests {
         bookService.reserveBook(book.getId());
     }
 
-    @Test(expected = ReservationAlreadyExistsForUser.class)
-    @WithUserDetails(value = "Stefan", userDetailsServiceBeanName = "userDetailsService")
+    @Test(expected = ReservationAlreadyExistsForUserException.class)
+    @WithUserDetails(value = "Etienne", userDetailsServiceBeanName = "userDetailsService")
     public void whenReservingBook_thenReturnOldReservationIfAlreadyReservedBySameUser() {
-        user = new User();
-        user.setId(2L);
-        user.setUsername("Stefan");
-
-        reservation.setUser(user);
         reservation.setActive(true);
 
         Mockito.when(bookRepository.findById(book.getId())).thenReturn(Optional.of(book));
@@ -112,12 +109,48 @@ public class BookReservationTests {
         bookService.reserveBook(book.getId());
     }
 
-    @Test(expected = BookNotFoundExcpetion.class)
-    @WithUserDetails(value = "Stefan", userDetailsServiceBeanName = "userDetailsService")
+    @Test(expected = BookNotFoundException.class)
+    @WithUserDetails(value = "Etienne", userDetailsServiceBeanName = "userDetailsService")
     public void whenReservingBookAndBookDoesNotExists_thenThrowBookNotFoundException() {
-        Mockito.when(bookRepository.findById(book.getId())).thenThrow(BookNotFoundExcpetion.class);
+        Mockito.when(bookRepository.findById(book.getId())).thenThrow(BookNotFoundException.class);
         Mockito.when(reservationRepository.findTop1ByBookIdOrderByReservedAtDesc(1L)).thenReturn(Optional.of(reservation));
 
         bookService.reserveBook(book.getId());
+    }
+
+    @Test(expected = ReservationDoesNotExistException.class)
+    @WithUserDetails(value = "Stefan", userDetailsServiceBeanName = "userDetailsService")
+    public void whenDeletingNonExistingReservation_thenThrowReservationDoesNotExistException() {
+        bookService.deleteActiveReservationForBook(book.getId());
+    }
+
+    @Test(expected = CannotDeleteReservationForOtherUserException.class)
+    @WithUserDetails(value = "Stefan", userDetailsServiceBeanName = "userDetailsService")
+    public void whenDeletingExistingReservationForOtherUser_thenThrowCannotDeleteReservationForOtherUserException() {
+        reservation.setActive(true);
+        Mockito.when(reservationRepository.findTop1ByBookIdOrderByReservedAtDesc(1L)).thenReturn(Optional.of(reservation));
+
+        bookService.deleteActiveReservationForBook(book.getId());
+    }
+
+    @Test(expected = ReservationDoesNotExistException.class)
+    @WithUserDetails(value = "Etienne", userDetailsServiceBeanName = "userDetailsService")
+    public void whenDeletingNonActiveReservation_thenThrowReservationDoesNotExistException() {
+        Mockito.when(reservationRepository.findTop1ByBookIdOrderByReservedAtDesc(1L)).thenReturn(Optional.of(reservation));
+        bookService.deleteActiveReservationForBook(book.getId());
+    }
+
+    @Test
+    @WithUserDetails(value = "Etienne", userDetailsServiceBeanName = "userDetailsService")
+    public void whenDeletingReservation_thenSetActiveToFalse() {
+        reservation.setActive(true);
+        Mockito.when(reservationRepository.findTop1ByBookIdOrderByReservedAtDesc(1L)).thenReturn(Optional.of(reservation));
+        bookService.deleteActiveReservationForBook(book.getId());
+
+        ArgumentCaptor<Reservation> capture = ArgumentCaptor.forClass(Reservation.class);
+        Mockito.verify(reservationRepository, Mockito.times(1)).saveAndFlush(capture.capture());
+
+        Assert.assertEquals(reservation.getId(), capture.getValue().getId());
+        Assert.assertFalse(capture.getValue().getActive());
     }
 }

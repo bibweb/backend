@@ -1,5 +1,6 @@
 package ch.zuehlke.bibweb.book;
 
+import ch.zuehlke.bibweb.book.exception.BookNotFoundException;
 import ch.zuehlke.bibweb.reservation.ReservationRepository;
 import org.junit.Assert;
 import org.junit.Before;
@@ -69,7 +70,7 @@ public class BookServiceTest {
         Assert.assertEquals("Testbook 1", found.getTitle());
     }
 
-    @Test(expected = BookNotFoundExcpetion.class)
+    @Test(expected = BookNotFoundException.class)
     public void whenNonPresentId_thenExceptionShouldBeThrown() {
         Mockito.when(bookRepository.findById(2L)).thenReturn(Optional.empty());
         bookService.getBookById(2L);
