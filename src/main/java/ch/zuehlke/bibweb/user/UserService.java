@@ -1,8 +1,11 @@
 package ch.zuehlke.bibweb.user;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class UserService {
@@ -24,7 +27,6 @@ public class UserService {
             userToRegister.setPassword(bCryptPasswordEncoder.encode(newUser.getPassword()));
 
             Role userRole = this.roleRepository.findByRolename("USER");
-
             userToRegister.addRole(userRole);
 
             return this.userRepository.saveAndFlush(userToRegister);
@@ -32,5 +34,10 @@ public class UserService {
             throw new UserAlreadyExistsException(String.format("Username %s is already taken.", newUser.getUsername()));
         }
 
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    public List<User> getUsers() {
+        return this.userRepository.findAll();
     }
 }
