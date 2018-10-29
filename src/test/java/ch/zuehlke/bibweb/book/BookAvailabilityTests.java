@@ -93,7 +93,7 @@ public class BookAvailabilityTests {
         checkout.setStillOut(active);
 
         Mockito.when(bookRepository.findById(1L)).thenReturn(Optional.of(book));
-        Mockito.when(checkoutRepository.findTop1ByBookIdOrderByCheckoutDateAtDesc(1L)).thenReturn(Optional.of(checkout));
+        Mockito.when(checkoutRepository.findTop1ByBookIdOrderByCheckoutDateDesc(1L)).thenReturn(Optional.of(checkout));
 
         Assert.assertEquals(expected, bookService.getBookById(1L).getAvailability());
     }

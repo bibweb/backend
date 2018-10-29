@@ -72,7 +72,7 @@ public class BookCheckoutTests {
         checkout.setStillOut(false);
 
         Mockito.when(bookRepository.findById(book.getId())).thenReturn(Optional.of(book));
-        Mockito.when(checkoutRepository.findTop1ByBookIdOrderByCheckoutDateAtDesc(1L)).thenReturn(Optional.of(checkout));
+        Mockito.when(checkoutRepository.findTop1ByBookIdOrderByCheckoutDateDesc(1L)).thenReturn(Optional.of(checkout));
 
         bookService.checkoutBook(book.getId());
 
@@ -88,7 +88,7 @@ public class BookCheckoutTests {
         checkout.setStillOut(true);
 
         Mockito.when(bookRepository.findById(book.getId())).thenReturn(Optional.of(book));
-        Mockito.when(checkoutRepository.findTop1ByBookIdOrderByCheckoutDateAtDesc(1L)).thenReturn(Optional.of(checkout));
+        Mockito.when(checkoutRepository.findTop1ByBookIdOrderByCheckoutDateDesc(1L)).thenReturn(Optional.of(checkout));
 
         Mockito.verify(checkoutRepository, Mockito.times(0)).saveAndFlush(any(Checkout.class));
         Mockito.verify(checkoutRepository, Mockito.times(0)).save(any(Checkout.class));
@@ -102,7 +102,7 @@ public class BookCheckoutTests {
         checkout.setStillOut(true);
 
         Mockito.when(bookRepository.findById(book.getId())).thenReturn(Optional.of(book));
-        Mockito.when(checkoutRepository.findTop1ByBookIdOrderByCheckoutDateAtDesc(1L)).thenReturn(Optional.of(checkout));
+        Mockito.when(checkoutRepository.findTop1ByBookIdOrderByCheckoutDateDesc(1L)).thenReturn(Optional.of(checkout));
 
         bookService.checkoutBook(book.getId());
     }
@@ -111,7 +111,7 @@ public class BookCheckoutTests {
     @WithUserDetails(value = "Etienne", userDetailsServiceBeanName = "userDetailsService")
     public void whenCheckingOutBookAndBookDoesNotExists_thenThrowBookNotFoundException() {
         Mockito.when(bookRepository.findById(book.getId())).thenThrow(BookNotFoundException.class);
-        Mockito.when(checkoutRepository.findTop1ByBookIdOrderByCheckoutDateAtDesc(1L)).thenReturn(Optional.of(checkout));
+        Mockito.when(checkoutRepository.findTop1ByBookIdOrderByCheckoutDateDesc(1L)).thenReturn(Optional.of(checkout));
 
         bookService.checkoutBook(book.getId());
     }
@@ -126,7 +126,7 @@ public class BookCheckoutTests {
     @WithUserDetails(value = "Stefan", userDetailsServiceBeanName = "userDetailsService")
     public void whenDeletingExistingCheckoutForOtherUser_thenThrowCannotDeleteCheckoutForOtherUserException() {
         checkout.setStillOut(true);
-        Mockito.when(checkoutRepository.findTop1ByBookIdOrderByCheckoutDateAtDesc(1L)).thenReturn(Optional.of(checkout));
+        Mockito.when(checkoutRepository.findTop1ByBookIdOrderByCheckoutDateDesc(1L)).thenReturn(Optional.of(checkout));
 
         bookService.returnBook(book.getId());
     }
@@ -134,7 +134,7 @@ public class BookCheckoutTests {
     @Test(expected = CheckoutDoesNotExistException.class)
     @WithUserDetails(value = "Etienne", userDetailsServiceBeanName = "userDetailsService")
     public void whenDeletingNonActiveCheckout_thenThrowCheckoutDoesNotExistException() {
-        Mockito.when(checkoutRepository.findTop1ByBookIdOrderByCheckoutDateAtDesc(1L)).thenReturn(Optional.of(checkout));
+        Mockito.when(checkoutRepository.findTop1ByBookIdOrderByCheckoutDateDesc(1L)).thenReturn(Optional.of(checkout));
         bookService.returnBook(book.getId());
     }
 
@@ -142,7 +142,7 @@ public class BookCheckoutTests {
     @WithUserDetails(value = "Etienne", userDetailsServiceBeanName = "userDetailsService")
     public void whenDeletingCheckout_thenSetReturnedToFalse() {
         checkout.setStillOut(true);
-        Mockito.when(checkoutRepository.findTop1ByBookIdOrderByCheckoutDateAtDesc(1L)).thenReturn(Optional.of(checkout));
+        Mockito.when(checkoutRepository.findTop1ByBookIdOrderByCheckoutDateDesc(1L)).thenReturn(Optional.of(checkout));
         bookService.returnBook(book.getId());
 
         ArgumentCaptor<Checkout> capture = ArgumentCaptor.forClass(Checkout.class);

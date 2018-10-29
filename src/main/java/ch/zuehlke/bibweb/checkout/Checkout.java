@@ -2,6 +2,7 @@ package ch.zuehlke.bibweb.checkout;
 
 import javax.persistence.*;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Date;
 
 @Entity
@@ -27,11 +28,12 @@ public class Checkout {
     @Temporal(TemporalType.TIMESTAMP)
     private Date dueDate;
 
-    @Column(name = "stillOut")
+    @Column(name = "still_out")
     private Boolean stillOut;
 
     public Checkout() {
         this.checkoutDate = Date.from(Instant.now());
+        this.dueDate = Date.from(Instant.now().plus(30, ChronoUnit.DAYS));
     }
 
     public Long getId() {

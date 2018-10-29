@@ -75,7 +75,7 @@ public class BookService {
     private BookCheckoutState getAvailabilityBasedOnReservations(Long bookId) {
         BookCheckoutState retVal = BookCheckoutState.AVAILABLE;
 
-        Optional<Checkout> reservation = checkoutRepository.findTop1ByBookIdOrderByCheckoutDateAtDesc(bookId);
+        Optional<Checkout> reservation = checkoutRepository.findTop1ByBookIdOrderByCheckoutDateDesc(bookId);
         if (reservation.isPresent()) {
             if (reservation.get().getStillOut() == false) {
                 retVal = BookCheckoutState.AVAILABLE;
@@ -103,7 +103,7 @@ public class BookService {
     }
 
     public void returnBook(long bookId) throws CheckoutDoesNotExistException, CannotDeleteCheckoutForOtherUserException {
-        Optional<Checkout> reservation = checkoutRepository.findTop1ByBookIdOrderByCheckoutDateAtDesc(bookId);
+        Optional<Checkout> reservation = checkoutRepository.findTop1ByBookIdOrderByCheckoutDateDesc(bookId);
 
         if (!reservation.isPresent()) throw new CheckoutDoesNotExistException();
         Checkout res = reservation.get();
