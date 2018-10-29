@@ -11,7 +11,6 @@ buildscript {
     dependencies {
         classpath "org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}"
         classpath "gradle.plugin.com.palantir.gradle.docker:gradle-docker:0.20.1"
-        classpath "org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.6.2"
     }
 }
 
@@ -20,9 +19,6 @@ apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
 apply plugin: 'com.palantir.docker'
 apply plugin: "jacoco"
-
-apply plugin: "org.sonarqube"
-
 
 group = 'ch.zuehlke'
 

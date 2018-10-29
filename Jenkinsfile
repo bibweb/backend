@@ -29,12 +29,6 @@ pipeline {
             }
         }
 		
-		stage('Sonarqube') {
-			steps {
-				sh './gradlew sonarqube -Dsonar.host.url=http://localhost:9000'
-			}		
-		}
-		
 		stage('Smoke test') {		
 			steps {
 				sh 'wget --retry-connrefused --no-check-certificate --tries=120 --waitretry=1 -q https://172.17.0.1:8443 -O /dev/null || true'
