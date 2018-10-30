@@ -1,6 +1,7 @@
 package ch.zuehlke.bibweb.book;
 
 import ch.zuehlke.bibweb.book.exception.*;
+import ch.zuehlke.bibweb.checkout.CheckoutService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -13,6 +14,9 @@ public class BookController {
 
     @Autowired
     private BookService bookService;
+
+    @Autowired
+    private CheckoutService checkoutService;
 
     @GetMapping("/books")
     public List<BookDTO> getAllBooks() {
@@ -33,12 +37,12 @@ public class BookController {
     @PutMapping("/books/{id}/checkouts")
     @ResponseStatus(HttpStatus.CREATED)
     public void checkoutBook(@PathVariable("id") int id) {
-        bookService.checkoutBook((long) id);
+        checkoutService.checkoutBookForCurrentUser((long) id);
     }
 
     @DeleteMapping("/books/{id}/checkouts")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void returnBook(@PathVariable("id") int id) { bookService.returnBook((long) id); }
+    public void returnBook(@PathVariable("id") int id) { checkoutService.returnBook((long) id); }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.FORBIDDEN)

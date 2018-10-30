@@ -1,5 +1,6 @@
 package ch.zuehlke.bibweb.book;
 import ch.zuehlke.bibweb.book.exception.*;
+import ch.zuehlke.bibweb.checkout.CheckoutService;
 import ch.zuehlke.bibweb.config.WebSecurityTestConfig;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
@@ -37,6 +38,9 @@ public class BookControllerTest {
 
     @MockBean
     private BookService bookService;
+
+    @MockBean
+    private CheckoutService checkoutService;
 
     @Test
     @WithMockUser(roles = "USER")
@@ -151,7 +155,7 @@ public class BookControllerTest {
     @Test
     @WithMockUser(authorities = "ROLE_USER")
     public void whenCheckingOutBookAndNotPossible_thenStatusShouldBeForbidden() throws Exception {
-        Mockito.when(bookService.checkoutBook(1L)).thenThrow(BookCannotBeCheckedOut.class);
+        Mockito.when(checkoutService.checkoutBookForCurrentUser(1L)).thenThrow(BookCannotBeCheckedOut.class);
 
         this.mvc.perform(put("/books/1/checkouts")
                 .contentType(MediaType.APPLICATION_JSON))
@@ -161,7 +165,7 @@ public class BookControllerTest {
     @Test
     @WithMockUser(authorities = "ROLE_USER")
     public void whenCheckingOutBookAndAlreadyExistsForUser_thenStatusShouldBeNoContent() throws Exception {
-        Mockito.when(bookService.checkoutBook(1L)).thenThrow(CheckoutAlreadyExistsForUserException.class);
+        Mockito.when(checkoutService.checkoutBookForCurrentUser(1L)).thenThrow(CheckoutAlreadyExistsForUserException.class);
 
         this.mvc.perform(put("/books/1/checkouts")
                 .contentType(MediaType.APPLICATION_JSON))
@@ -171,7 +175,7 @@ public class BookControllerTest {
     @Test
     @WithMockUser(authorities = "ROLE_USER")
     public void whenDeletingCheckoutForOtherUser_thenStatusShouldBeForbidden() throws Exception {
-        Mockito.doThrow(CannotDeleteCheckoutForOtherUserException.class).when(bookService).returnBook(1L);
+        Mockito.doThrow(CannotDeleteCheckoutForOtherUserException.class).when(checkoutService).returnBook(1L);
 
         this.mvc.perform(delete("/books/1/checkouts")
                 .contentType(MediaType.APPLICATION_JSON))
@@ -181,7 +185,7 @@ public class BookControllerTest {
     @Test
     @WithMockUser(authorities = "ROLE_USER")
     public void whenDeletingNonExistingCheckout_thenStatusShouldBeNotFound() throws Exception {
-        Mockito.doThrow(CheckoutDoesNotExistException.class).when(bookService).returnBook(1L);
+        Mockito.doThrow(CheckoutDoesNotExistException.class).when(checkoutService).returnBook(1L);
 
         this.mvc.perform(delete("/books/1/checkouts")
                 .contentType(MediaType.APPLICATION_JSON))

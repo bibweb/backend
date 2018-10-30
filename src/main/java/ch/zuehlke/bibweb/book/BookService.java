@@ -1,9 +1,7 @@
 package ch.zuehlke.bibweb.book;
 
-import ch.zuehlke.bibweb.book.exception.*;
-import ch.zuehlke.bibweb.checkout.Checkout;
-import ch.zuehlke.bibweb.checkout.CheckoutRepository;
-import ch.zuehlke.bibweb.user.UserSecurityUtil;
+import ch.zuehlke.bibweb.book.exception.BookNotFoundException;
+import ch.zuehlke.bibweb.checkout.AvailabilityService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -20,7 +18,7 @@ public class BookService {
     private BookRepository bookRepository;
 
     @Autowired
-    private CheckoutRepository checkoutRepository;
+    private AvailabilityService availabilityService;
 
     public List<BookDTO> getAllBooks() {
         return bookRepository.findAll().stream().map(book -> mapBookToBookDTO(book)).collect(Collectors.toList());
@@ -51,72 +49,11 @@ public class BookService {
         }
     }
 
-    public Checkout checkoutBook(Long bookId) throws BookCannotBeCheckedOut, CheckoutAlreadyExistsForUserException, BookNotFoundException {
-        BookCheckoutState availabilityState = getAvailabilityBasedOnReservations(bookId);
-
-        final BookDTO book = getBookById(bookId);
-
-        if (availabilityState.equals(BookCheckoutState.AVAILABLE)) {
-            Checkout res = new Checkout();
-            res.setStillOut(true);
-            res.setBookId(book.getId());
-            res.setUserId(UserSecurityUtil.getCurrentUser().getId());
-
-            res = checkoutRepository.saveAndFlush(res);
-            return res;
-        }
-        if (availabilityState.equals(BookCheckoutState.CHECKEDOUT_BY_YOU)) {
-            throw new CheckoutAlreadyExistsForUserException();
-        }
-
-        throw new BookCannotBeCheckedOut();
-    }
-
-    private BookCheckoutState getAvailabilityBasedOnReservations(Long bookId) {
-        BookCheckoutState retVal = BookCheckoutState.AVAILABLE;
-
-        Optional<Checkout> reservation = checkoutRepository.findTop1ByBookIdOrderByCheckoutDateDesc(bookId);
-        if (reservation.isPresent()) {
-            if (reservation.get().getStillOut() == false) {
-                retVal = BookCheckoutState.AVAILABLE;
-            } else {
-                if (reservation.get().getUserId().equals(UserSecurityUtil.getCurrentUser().getId())) {
-                    retVal = BookCheckoutState.CHECKEDOUT_BY_YOU;
-                } else {
-                    retVal = BookCheckoutState.UNAVAILABLE;
-                }
-            }
-        }
-
-        return retVal;
-    }
-
-    private BookCheckoutState checkAvailability(Long bookId) {
-        return getAvailabilityBasedOnReservations(bookId);
-    }
-
     private BookDTO mapBookToBookDTO(Book book) {
         BookDTO dto = new BookDTO();
         BeanUtils.copyProperties(book, dto);
-        dto.setAvailability(checkAvailability(dto.getId()));
+        dto.setAvailability(availabilityService.getAvailabilityBasedOnCheckouts(dto.getId()));
         return dto;
     }
 
-    public void returnBook(long bookId) throws CheckoutDoesNotExistException, CannotDeleteCheckoutForOtherUserException {
-        Optional<Checkout> reservation = checkoutRepository.findTop1ByBookIdOrderByCheckoutDateDesc(bookId);
-
-        if (!reservation.isPresent()) throw new CheckoutDoesNotExistException();
-        Checkout res = reservation.get();
-
-        if (res.getUserId().equals(UserSecurityUtil.getCurrentUser().getId())) {
-            if(res.getStillOut()) {
-                res.setStillOut(false);
-                checkoutRepository.saveAndFlush(res);
-            } else {
-                throw new CheckoutDoesNotExistException();
-            }
-        } else {
-            throw new CannotDeleteCheckoutForOtherUserException();
-        }
-    }
 }
