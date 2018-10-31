@@ -21,7 +21,7 @@ pipeline {
 
         stage('Sonarqube') {
             steps {
-                sh './gradlew sonarqube -Dsonar.host.url=http://localhost:9000'
+                sh './gradlew sonarqube -Dsonar.host.url=http://localhost:9000/sonar'
             }
         }
 
