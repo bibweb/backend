@@ -13,11 +13,18 @@ pipeline {
             }
         }
         stage('JaCoCo') {
-                     steps {
-                         sh './gradlew jacocoTestReport'
-                         jacoco exclusionPattern: '**/*Test*.class,**/*IT*.class', sourceExclusionPattern: '**/test/**'
-                     }
-                 }
+             steps {
+                 sh './gradlew jacocoTestReport'
+                 jacoco exclusionPattern: '**/*Test*.class,**/*IT*.class', sourceExclusionPattern: '**/test/**'
+             }
+        }
+
+        stage('Sonarqube') {
+            steps {
+                sh './gradlew sonarqube -Dsonar.host.url=http://localhost:9000'
+            }
+        }
+
         stage('Docker image') {
             steps {
                 sh './gradlew docker'

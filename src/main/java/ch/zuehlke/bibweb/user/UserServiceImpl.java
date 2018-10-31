@@ -18,14 +18,14 @@ public class UserServiceImpl implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepository.findByUsername(username);
+        BibwebUser user = userRepository.findByUsername(username);
         if (user == null) {
             throw new UsernameNotFoundException("Invalid username or password.");
         }
         return user;
     }
 
-    private Set<SimpleGrantedAuthority> getAuthority(User user) {
+    private Set<SimpleGrantedAuthority> getAuthority(BibwebUser user) {
         return user.getRoles().stream()
                 .map(role -> new SimpleGrantedAuthority("ROLE_" + role.getRolename()))
                 .collect(Collectors.toSet());

@@ -4,7 +4,7 @@ import ch.zuehlke.bibweb.checkout.AvailabilityService;
 import ch.zuehlke.bibweb.config.UserDetailTestService;
 import ch.zuehlke.bibweb.checkout.Checkout;
 import ch.zuehlke.bibweb.checkout.CheckoutRepository;
-import ch.zuehlke.bibweb.user.User;
+import ch.zuehlke.bibweb.user.BibwebUser;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -77,7 +77,7 @@ public class BookAvailabilityTests {
     }
 
     private void testAvailabilityWithPresentCheckout(BookCheckoutState expected, Boolean active) {
-        User user = new User();
+        BibwebUser user = new BibwebUser();
         user.setUsername("Etienne");
         user.setId(1L);
 

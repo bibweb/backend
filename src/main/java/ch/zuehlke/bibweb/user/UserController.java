@@ -21,7 +21,7 @@ public class UserController {
 
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public List<User> getUsers() {
+    public List<BibwebUser> getUsers() {
         return this.userService.getUsers();
     }
 

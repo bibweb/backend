@@ -12,7 +12,7 @@ public class UserSecurityUtil {
         return SecurityContextHolder.getContext().getAuthentication().getName();
     }
 
-    public static User getCurrentUser() {
-        return (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    public static BibwebUser getCurrentUser() {
+        return (BibwebUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
 }

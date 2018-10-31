@@ -19,9 +19,9 @@ public class UserService {
     @Autowired
     private BCryptPasswordEncoder bCryptPasswordEncoder;
 
-    public User signUp(SignUpUserDTO newUser) {
+    public BibwebUser signUp(SignUpUserDTO newUser) {
         if (this.userRepository.findByUsername(newUser.getUsername()) == null) {
-            User userToRegister = new User();
+            BibwebUser userToRegister = new BibwebUser();
 
             userToRegister.setUsername(newUser.getUsername());
             userToRegister.setPassword(bCryptPasswordEncoder.encode(newUser.getPassword()));
@@ -37,7 +37,7 @@ public class UserService {
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    public List<User> getUsers() {
+    public List<BibwebUser> getUsers() {
         return this.userRepository.findAll();
     }
 }

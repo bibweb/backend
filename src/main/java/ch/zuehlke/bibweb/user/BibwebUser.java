@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "bibweb_user")
-public class User implements UserDetails {
+public class BibwebUser implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,7 +32,7 @@ public class User implements UserDetails {
             @JoinColumn(name = "ROLE_ID") })
     private Set<Role> roles;
 
-    public User() {}
+    public BibwebUser() {}
 
     public Long getId() {
         return id;

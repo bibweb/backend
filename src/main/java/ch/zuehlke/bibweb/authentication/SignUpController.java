@@ -1,7 +1,7 @@
 package ch.zuehlke.bibweb.authentication;
 
 import ch.zuehlke.bibweb.user.SignUpUserDTO;
-import ch.zuehlke.bibweb.user.User;
+import ch.zuehlke.bibweb.user.BibwebUser;
 import ch.zuehlke.bibweb.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,7 +15,7 @@ public class SignUpController {
     private UserService userService;
 
     @PostMapping("/signup")
-    public User signUp(@RequestBody SignUpUserDTO newUser) {
+    public BibwebUser signUp(@RequestBody SignUpUserDTO newUser) {
         return this.userService.signUp(newUser);
     }
 }

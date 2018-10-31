@@ -6,7 +6,7 @@ import ch.zuehlke.bibweb.checkout.CheckoutService;
 import ch.zuehlke.bibweb.config.UserDetailTestService;
 import ch.zuehlke.bibweb.checkout.Checkout;
 import ch.zuehlke.bibweb.checkout.CheckoutRepository;
-import ch.zuehlke.bibweb.user.User;
+import ch.zuehlke.bibweb.user.BibwebUser;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -51,7 +51,7 @@ public class BookCheckoutTests {
     private CheckoutService checkoutService;
 
     private Book book;
-    private User user;
+    private BibwebUser user;
     private Checkout checkout;
 
     @Before
@@ -59,7 +59,7 @@ public class BookCheckoutTests {
         book = new Book();
         book.setId(1L);
 
-        user = new User();
+        user = new BibwebUser();
         user.setId(1L);
         user.setUsername("Etienne");
 

@@ -11,6 +11,7 @@ buildscript {
     dependencies {
         classpath "org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}"
         classpath "gradle.plugin.com.palantir.gradle.docker:gradle-docker:0.20.1"
+        classpath "org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.6.2"
     }
 }
 
@@ -19,6 +20,7 @@ apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
 apply plugin: 'com.palantir.docker'
 apply plugin: 'jacoco'
+apply plugin: 'org.sonarqube'
 
 group = 'ch.zuehlke'
 
@@ -41,7 +43,7 @@ dependencies {
     implementation('org.hibernate:hibernate-java8')
     implementation('org.postgresql:postgresql:42.2.5')
     implementation('org.springframework.boot:spring-boot-starter-web')
-    implementation('org.flywaydb:flyway-core:5.2.0')
+    implementation('org.flywaydb:flyway-core:5.2.1')
     implementation('org.springframework.boot:spring-boot-starter-security')
     implementation('io.jsonwebtoken:jjwt:0.9.0')
     implementation('org.springframework.boot:spring-boot-starter-actuator')

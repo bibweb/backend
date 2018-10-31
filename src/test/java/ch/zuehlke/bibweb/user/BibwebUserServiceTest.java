@@ -16,7 +16,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
 @RunWith(SpringRunner.class)
-public class UserServiceTest {
+public class BibwebUserServiceTest {
 
     @MockBean
     private UserRepository userRepository;
@@ -45,20 +45,20 @@ public class UserServiceTest {
     public void signUp() {
         SignUpUserDTO signUpUserDTO = setUpUserDTO();
         Role role = setUpRole();
-        User user = setUpUser(role);
+        BibwebUser user = setUpUser(role);
 
         given(this.userRepository.findByUsername(any(String.class))).willReturn(null);
         given(this.roleRepository.findByRolename("test")).willReturn(role);
-        given(this.userRepository.saveAndFlush(any(User.class))).willReturn(user);
+        given(this.userRepository.saveAndFlush(any(BibwebUser.class))).willReturn(user);
 
-        User registeredUser = this.userService.signUp(signUpUserDTO);
+        BibwebUser registeredUser = this.userService.signUp(signUpUserDTO);
 
         assertEquals("test", registeredUser.getUsername());
     }
 
     @Test(expected = UserAlreadyExistsException.class)
     public void signUp_UserAlreadyExists() {
-        given(this.userRepository.findByUsername(any(String.class))).willReturn(new User());
+        given(this.userRepository.findByUsername(any(String.class))).willReturn(new BibwebUser());
 
         SignUpUserDTO signUpUserDTO = setUpUserDTO();
 
@@ -79,8 +79,8 @@ public class UserServiceTest {
         return signUpUserDTO;
     }
 
-    private User setUpUser(Role role) {
-        User user = new User();
+    private BibwebUser setUpUser(Role role) {
+        BibwebUser user = new BibwebUser();
         user.setUsername("test");
         user.setPassword("sdfasfsdafsadf");
         HashSet<Role> roles = new HashSet<>();
