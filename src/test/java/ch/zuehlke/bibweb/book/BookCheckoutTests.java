@@ -1,6 +1,7 @@
 package ch.zuehlke.bibweb.book;
 
 import ch.zuehlke.bibweb.book.exception.*;
+import ch.zuehlke.bibweb.checkout.AvailabilityService;
 import ch.zuehlke.bibweb.checkout.CheckoutService;
 import ch.zuehlke.bibweb.config.UserDetailTestService;
 import ch.zuehlke.bibweb.checkout.Checkout;
@@ -41,10 +42,10 @@ public class BookCheckoutTests {
     }
 
     @MockBean
-    private BookRepository bookRepository;
+    private CheckoutRepository checkoutRepository;
 
     @MockBean
-    CheckoutRepository checkoutRepository;
+    private AvailabilityService availabilityService;
 
     @Autowired
     private CheckoutService checkoutService;
@@ -72,7 +73,7 @@ public class BookCheckoutTests {
     public void whenCheckingOutBook_thenCreateNewCheckoutIfAvailable() {
         checkout.setStillOut(false);
 
-        Mockito.when(bookRepository.findById(book.getId())).thenReturn(Optional.of(book));
+        Mockito.when(availabilityService.getAvailabilityBasedOnCheckouts(1L)).thenReturn(BookCheckoutState.AVAILABLE);
         Mockito.when(checkoutRepository.findTop1ByBookIdOrderByCheckoutDateDesc(1L)).thenReturn(Optional.of(checkout));
 
         checkoutService.checkoutBookForCurrentUser(book.getId());
@@ -88,7 +89,7 @@ public class BookCheckoutTests {
     public void whenCheckingOutBook_thenThrowErrorIfBookAlreadyCheckedOutByOtherUser() {
         checkout.setStillOut(true);
 
-        Mockito.when(bookRepository.findById(book.getId())).thenReturn(Optional.of(book));
+        Mockito.when(availabilityService.getAvailabilityBasedOnCheckouts(1L)).thenReturn(BookCheckoutState.UNAVAILABLE);
         Mockito.when(checkoutRepository.findTop1ByBookIdOrderByCheckoutDateDesc(1L)).thenReturn(Optional.of(checkout));
 
         Mockito.verify(checkoutRepository, Mockito.times(0)).saveAndFlush(any(Checkout.class));
@@ -102,7 +103,7 @@ public class BookCheckoutTests {
     public void whenCheckingOutBook_thenReturnOldCheckoutIfAlreadyCheckedOutBySameUser() {
         checkout.setStillOut(true);
 
-        Mockito.when(bookRepository.findById(book.getId())).thenReturn(Optional.of(book));
+        Mockito.when(availabilityService.getAvailabilityBasedOnCheckouts(1L)).thenReturn(BookCheckoutState.CHECKEDOUT_BY_YOU);
         Mockito.when(checkoutRepository.findTop1ByBookIdOrderByCheckoutDateDesc(1L)).thenReturn(Optional.of(checkout));
 
         checkoutService.checkoutBookForCurrentUser(book.getId());
@@ -111,7 +112,7 @@ public class BookCheckoutTests {
     @Test(expected = BookNotFoundException.class)
     @WithUserDetails(value = "Etienne", userDetailsServiceBeanName = "userDetailsService")
     public void whenCheckingOutBookAndBookDoesNotExists_thenThrowBookNotFoundException() {
-        Mockito.when(bookRepository.findById(book.getId())).thenThrow(BookNotFoundException.class);
+        Mockito.when(availabilityService.getAvailabilityBasedOnCheckouts(1L)).thenThrow(BookNotFoundException.class);
         Mockito.when(checkoutRepository.findTop1ByBookIdOrderByCheckoutDateDesc(1L)).thenReturn(Optional.of(checkout));
 
         checkoutService.checkoutBookForCurrentUser(book.getId());

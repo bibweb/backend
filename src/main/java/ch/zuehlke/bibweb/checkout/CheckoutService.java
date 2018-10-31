@@ -1,8 +1,6 @@
 package ch.zuehlke.bibweb.checkout;
 
 import ch.zuehlke.bibweb.book.BookCheckoutState;
-import ch.zuehlke.bibweb.book.BookDTO;
-import ch.zuehlke.bibweb.book.BookService;
 import ch.zuehlke.bibweb.book.exception.*;
 import ch.zuehlke.bibweb.user.UserSecurityUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,9 +19,6 @@ public class CheckoutService {
     @Autowired
     private AvailabilityService availabilityService;
 
-    @Autowired
-    private BookService bookService;
-
     @PreAuthorize("hasAuthority('ROLE_LIBRARIAN') or hasAuthority('ROLE_ADMIN') or authentication.principal.getId() == #id")
     public List<Checkout> getCheckouts(long userId) {
         return checkoutRepository.findAllByUserId(userId);
@@ -37,12 +32,10 @@ public class CheckoutService {
     public Checkout checkoutBook(long id, long bookId) throws BookCannotBeCheckedOut, CheckoutAlreadyExistsForUserException, BookNotFoundException {
         BookCheckoutState availabilityState = availabilityService.getAvailabilityBasedOnCheckouts(bookId);
 
-        final BookDTO book = bookService.getBookById(bookId);
-
         if (availabilityState.equals(BookCheckoutState.AVAILABLE)) {
             Checkout res = new Checkout();
             res.setStillOut(true);
-            res.setBookId(book.getId());
+            res.setBookId(bookId);
             res.setUserId(UserSecurityUtil.getCurrentUser().getId());
 
             res = checkoutRepository.saveAndFlush(res);

@@ -1,5 +1,6 @@
 package ch.zuehlke.bibweb.book;
 
+import ch.zuehlke.bibweb.checkout.AvailabilityService;
 import ch.zuehlke.bibweb.config.UserDetailTestService;
 import ch.zuehlke.bibweb.checkout.Checkout;
 import ch.zuehlke.bibweb.checkout.CheckoutRepository;
@@ -24,10 +25,10 @@ import static org.mockito.ArgumentMatchers.any;
 public class BookAvailabilityTests {
 
     @TestConfiguration
-    static class BookServiceTestContextConfiguration {
+    static class BookAvailabilityTestContextConfiguration {
         @Bean
-        public BookService bookService() {
-            return new BookService();
+        public AvailabilityService availabilityService() {
+            return new AvailabilityService();
         }
 
         @Bean
@@ -37,13 +38,12 @@ public class BookAvailabilityTests {
     }
 
     @MockBean
-    private BookRepository bookRepository;
-
-    @MockBean
-    CheckoutRepository checkoutRepository;
+    private CheckoutRepository checkoutRepository;
 
     @Autowired
-    private BookService bookService;
+    private AvailabilityService availabilityService;
+
+    @MockBean BookRepository bookRepository;
 
     @Test
     @WithUserDetails(value = "Stefan", userDetailsServiceBeanName = "userDetailsService")
@@ -72,18 +72,11 @@ public class BookAvailabilityTests {
     @Test
     @WithUserDetails(value = "Stefan", userDetailsServiceBeanName = "userDetailsService")
     public void whenRequestingBook_thenReturnAvailableIfNoCheckoutsYet() {
-        Book book = new Book();
-        book.setId(1L);
-
-        Mockito.when(bookRepository.findById(1L)).thenReturn(Optional.of(book));
-
-        Assert.assertEquals(BookCheckoutState.AVAILABLE, bookService.getBookById(1L).getAvailability());
+        Mockito.when(bookRepository.findById(1L)).thenReturn(Optional.of(new Book()));
+        Assert.assertEquals(BookCheckoutState.AVAILABLE, availabilityService.getAvailabilityBasedOnCheckouts(1L));
     }
 
     private void testAvailabilityWithPresentCheckout(BookCheckoutState expected, Boolean active) {
-        Book book = new Book();
-        book.setId(1L);
-
         User user = new User();
         user.setUsername("Etienne");
         user.setId(1L);
@@ -92,9 +85,9 @@ public class BookAvailabilityTests {
         checkout.setUserId(user.getId());
         checkout.setStillOut(active);
 
-        Mockito.when(bookRepository.findById(1L)).thenReturn(Optional.of(book));
+        Mockito.when(bookRepository.findById(1L)).thenReturn(Optional.of(new Book()));
         Mockito.when(checkoutRepository.findTop1ByBookIdOrderByCheckoutDateDesc(1L)).thenReturn(Optional.of(checkout));
 
-        Assert.assertEquals(expected, bookService.getBookById(1L).getAvailability());
+        Assert.assertEquals(expected, availabilityService.getAvailabilityBasedOnCheckouts(1L));
     }
 }

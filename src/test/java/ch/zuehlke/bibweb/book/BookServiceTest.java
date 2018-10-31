@@ -1,6 +1,7 @@
 package ch.zuehlke.bibweb.book;
 
 import ch.zuehlke.bibweb.book.exception.BookNotFoundException;
+import ch.zuehlke.bibweb.checkout.AvailabilityService;
 import ch.zuehlke.bibweb.checkout.CheckoutRepository;
 import org.junit.Assert;
 import org.junit.Before;
@@ -33,7 +34,10 @@ public class BookServiceTest {
     private BookRepository bookRepository;
 
     @MockBean
-    CheckoutRepository checkoutRepository;
+    private CheckoutRepository checkoutRepository;
+
+    @MockBean
+    private AvailabilityService availabilityService;
 
     @Autowired
     private BookService bookService;
@@ -44,6 +48,7 @@ public class BookServiceTest {
         book.setTitle("Testbook 1");
 
         Mockito.when(bookRepository.findById(1L)).thenReturn(Optional.of(book));
+        Mockito.when(availabilityService.getAvailabilityBasedOnCheckouts(1L)).thenReturn(BookCheckoutState.AVAILABLE);
     }
 
     @Test
