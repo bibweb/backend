@@ -39,7 +39,7 @@ dependencies {
     implementation('com.h2database:h2')
     implementation('javax.xml.bind:jaxb-api')
     implementation('org.hibernate:hibernate-java8')
-    implementation('postgresql:postgresql:42.1.1')
+    implementation('org.postgresql:postgresql:42.2.5')
     implementation('org.springframework.boot:spring-boot-starter-web')
     implementation('org.flywaydb:flyway-core:5.2.0')
     implementation('org.springframework.boot:spring-boot-starter-security')
