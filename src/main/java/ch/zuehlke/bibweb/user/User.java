@@ -12,6 +12,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Entity
+@Table(name = "bibweb_user")
 public class User implements UserDetails {
 
     @Id

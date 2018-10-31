@@ -12,7 +12,7 @@ public class BookRequest {
     @Column(name = "isbn")
     private String isbn;
 
-    @Column(name = "user")
+    @Column(name = "username")
     private String user;
 
     @Column(name = "state")

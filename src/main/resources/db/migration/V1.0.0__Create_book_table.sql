@@ -1,5 +1,5 @@
 CREATE TABLE book (
-	id BIGINT NOT NULL AUTO_INCREMENT,
+	id BIGINT NOT NULL,
 	title VARCHAR(200),
 	isbn VARCHAR(200),
 	release_year INTEGER,

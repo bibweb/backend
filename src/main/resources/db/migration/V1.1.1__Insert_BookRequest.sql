@@ -1,1 +1,1 @@
-INSERT INTO bookrequest (id, isbn, user) VALUES (1, '9780132350884', 'frst')
+INSERT INTO bookrequest (id, isbn, username) VALUES (1, '9780132350884', 'frst')

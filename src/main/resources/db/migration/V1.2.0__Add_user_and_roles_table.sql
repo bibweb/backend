@@ -1,13 +1,13 @@
-CREATE TABLE user (
-  id BIGINT NOT NULL AUTO_INCREMENT,
-  username NVARCHAR(100) NOT NULL,
-  password NVARCHAR(100) NOT NULL,
+CREATE TABLE bibweb_user (
+  id BIGINT NOT NULL,
+  username VARCHAR(100) NOT NULL,
+  password VARCHAR(100) NOT NULL,
   PRIMARY KEY(id)
 );
 
 CREATE TABLE role (
-  id BIGINT NOT NULL AUTO_INCREMENT,
-  rolename NVARCHAR(100) NOT NULL,
+  id BIGINT NOT NULL,
+  rolename VARCHAR(100) NOT NULL,
   PRIMARY KEY(id)
 );
 
@@ -18,6 +18,6 @@ CREATE TABLE user_roles(
 );
 
 ALTER TABLE user_roles ADD CONSTRAINT ur_role_id FOREIGN KEY(role_id) REFERENCES role(id);
-ALTER TABLE user_roles ADD CONSTRAINT ur_user_id FOREIGN KEY(user_id) REFERENCES user(id);
+ALTER TABLE user_roles ADD CONSTRAINT ur_user_id FOREIGN KEY(user_id) REFERENCES bibweb_user(id);
 
-ALTER TABLE user ADD UNIQUE (username);
+ALTER TABLE bibweb_user ADD UNIQUE (username);
