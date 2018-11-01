@@ -7,7 +7,7 @@ import javax.persistence.*;
 public class BookRequest {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
     @Column(name = "isbn")
     private String isbn;
@@ -39,18 +39,18 @@ public class BookRequest {
         this.state = state;
     }
 
-    public BookRequest(long id, String isbn, String user, BookRequestState state) {
+    public BookRequest(Long id, String isbn, String user, BookRequestState state) {
         this.id = id;
         this.isbn = isbn;
         this.user = user;
         this.state = state;
     }
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

@@ -42,7 +42,7 @@ public class BookController {
 
     @DeleteMapping("/books/{id}/checkouts")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void returnBook(@PathVariable("id") int id) { checkoutService.returnBook((long) id); }
+    public void returnBook(@PathVariable("id") int id) { checkoutService.returnBookForCurrentUser((long) id); }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.FORBIDDEN)

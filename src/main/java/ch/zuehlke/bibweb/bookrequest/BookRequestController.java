@@ -32,7 +32,7 @@ public class BookRequestController {
 
     @GetMapping("/{id}")
     @PostAuthorize("hasRole('ADMIN') or returnObject.user.equals(authentication.name)")
-    public BookRequest getBookRequestDetails(@PathVariable long id) {
+    public BookRequest getBookRequestDetails(@PathVariable Integer id) {
         return this.bookRequestService.getBookRequestDetails(id);
     }
 

@@ -1,12 +1,12 @@
 CREATE TABLE bibweb_user (
-  id BIGINT NOT NULL,
+  id BIGSERIAL NOT NULL,
   username VARCHAR(100) NOT NULL,
   password VARCHAR(100) NOT NULL,
   PRIMARY KEY(id)
 );
 
 CREATE TABLE role (
-  id BIGINT NOT NULL,
+  id BIGSERIAL NOT NULL,
   rolename VARCHAR(100) NOT NULL,
   PRIMARY KEY(id)
 );

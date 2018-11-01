@@ -1,5 +1,5 @@
 CREATE TABLE bookrequest (
-  id BIGINT NOT NULL,
+  id BIGSERIAL NOT NULL,
   isbn VARCHAR(20) NOT NULL,
   username VARCHAR(100) NOT NULL,
   PRIMARY KEY(id)

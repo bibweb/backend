@@ -1,5 +1,5 @@
 CREATE TABLE checkout (
-  id BIGINT NOT NULL,
+  id BIGSERIAL NOT NULL,
   book_id BIGINT NOT NULL,
   user_id BIGINT NOT NULL,
   checkout_date TIMESTAMP NOT NULL,

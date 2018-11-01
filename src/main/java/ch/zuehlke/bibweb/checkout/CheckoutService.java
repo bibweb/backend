@@ -19,7 +19,7 @@ public class CheckoutService {
     @Autowired
     private AvailabilityService availabilityService;
 
-    @PreAuthorize("hasAuthority('ROLE_LIBRARIAN') or hasAuthority('ROLE_ADMIN') or authentication.principal.getId() == #id")
+    @PreAuthorize("hasAuthority('ROLE_LIBRARIAN') or hasAuthority('ROLE_ADMIN') or authentication.principal.getId() == #userId")
     public List<Checkout> getCheckouts(long userId) {
         return checkoutRepository.findAllByUserId(userId);
     }
@@ -28,18 +28,22 @@ public class CheckoutService {
         return checkoutBook(UserSecurityUtil.getCurrentUser().getId(), bookId);
     }
 
-    @PreAuthorize("hasAuthority('ROLE_LIBRARIAN') or hasAuthority('ROLE_ADMIN') or authentication.principal.getId() == #id")
-    public Checkout checkoutBook(long id, long bookId) throws BookCannotBeCheckedOut, CheckoutAlreadyExistsForUserException, BookNotFoundException {
+    public void returnBookForCurrentUser(long bookId) {
+        returnBook(UserSecurityUtil.getCurrentUser().getId(), bookId);
+    }
+
+    @PreAuthorize("hasAuthority('ROLE_LIBRARIAN') or hasAuthority('ROLE_ADMIN') or authentication.principal.getId() == #userId")
+    public Checkout checkoutBook(long userId, long bookId) throws BookCannotBeCheckedOut, CheckoutAlreadyExistsForUserException, BookNotFoundException {
         BookCheckoutState availabilityState = availabilityService.getAvailabilityBasedOnCheckouts(bookId);
 
         if (availabilityState.equals(BookCheckoutState.AVAILABLE)) {
-            Checkout res = new Checkout();
-            res.setStillOut(true);
-            res.setBookId(bookId);
-            res.setUserId(UserSecurityUtil.getCurrentUser().getId());
+            Checkout checkout = new Checkout();
+            checkout.setStillOut(true);
+            checkout.setBookId(bookId);
+            checkout.setUserId(UserSecurityUtil.getCurrentUser().getId());
 
-            res = checkoutRepository.saveAndFlush(res);
-            return res;
+            checkout = checkoutRepository.saveAndFlush(checkout);
+            return checkout;
         }
         if (availabilityState.equals(BookCheckoutState.CHECKEDOUT_BY_YOU)) {
             throw new CheckoutAlreadyExistsForUserException();
@@ -48,12 +52,12 @@ public class CheckoutService {
         throw new BookCannotBeCheckedOut();
     }
 
-    @PreAuthorize("hasAuthority('ROLE_LIBRARIAN') or hasAuthority('ROLE_ADMIN') or authentication.principal.getId() == #id")
-    public void returnBook(long bookId) throws CheckoutDoesNotExistException, CannotDeleteCheckoutForOtherUserException {
-        Optional<Checkout> reservation = checkoutRepository.findTop1ByBookIdOrderByCheckoutDateDesc(bookId);
+    @PreAuthorize("hasAuthority('ROLE_LIBRARIAN') or hasAuthority('ROLE_ADMIN') or authentication.principal.getId() == #userId")
+    public void returnBook(long userId, long bookId) throws CheckoutDoesNotExistException, CannotDeleteCheckoutForOtherUserException {
+        Optional<Checkout> checkout = checkoutRepository.findTop1ByBookIdOrderByCheckoutDateDesc(bookId);
 
-        if (!reservation.isPresent()) throw new CheckoutDoesNotExistException();
-        Checkout res = reservation.get();
+        if (!checkout.isPresent()) throw new CheckoutDoesNotExistException();
+        Checkout res = checkout.get();
 
         if (res.getUserId().equals(UserSecurityUtil.getCurrentUser().getId())) {
             if(res.getStillOut()) {

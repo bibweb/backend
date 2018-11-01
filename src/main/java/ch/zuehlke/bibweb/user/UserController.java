@@ -35,4 +35,5 @@ public class UserController {
     public void checkoutBook(@PathVariable("id") int id, @PathVariable("bookId") long bookId) {
         checkoutService.checkoutBook((long) id, (long) bookId);
     }
+
 }

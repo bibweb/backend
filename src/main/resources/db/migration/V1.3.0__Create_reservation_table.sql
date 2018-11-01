@@ -1,5 +1,5 @@
 CREATE TABLE reservation (
-  id BIGINT NOT NULL,
+  id BIGSERIAL NOT NULL,
   book_id BIGINT NOT NULL,
   user_id BIGINT NOT NULL,
   reserved_at TIMESTAMP NOT NULL,
