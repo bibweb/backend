@@ -1,6 +1,5 @@
 package ch.zuehlke.bibweb.authentication;
 
-import ch.zuehlke.bibweb.config.TokenProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -21,7 +20,7 @@ public class AuthenticationController {
     private TokenProvider jwtTokenUtil;
 
     @PostMapping(value = "/generate-token")
-    public ResponseEntity register(@RequestBody LoginUser loginUser) throws AuthenticationException {
+    public ResponseEntity register(@RequestBody LoginUser loginUser) {
         final Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         loginUser.getUsername(),

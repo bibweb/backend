@@ -21,10 +21,10 @@ public class BookService {
     private AvailabilityService availabilityService;
 
     public List<BookDTO> getAllBooks() {
-        return bookRepository.findAll().stream().map(book -> mapBookToBookDTO(book)).collect(Collectors.toList());
+        return bookRepository.findAll().stream().map(this::mapBookToBookDTO).collect(Collectors.toList());
     }
 
-    public BookDTO getBookById(Long id) throws BookNotFoundException {
+    public BookDTO getBookById(Long id) {
         Optional<Book> book = bookRepository.findById(id);
         if (book.isPresent()) return mapBookToBookDTO(book.get());
 

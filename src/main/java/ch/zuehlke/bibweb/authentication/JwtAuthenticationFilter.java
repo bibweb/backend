@@ -1,5 +1,6 @@
-package ch.zuehlke.bibweb.config;
+package ch.zuehlke.bibweb.authentication;
 
+import ch.zuehlke.bibweb.authentication.TokenProvider;
 import io.jsonwebtoken.ExpiredJwtException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;

@@ -1,6 +1,7 @@
 package ch.zuehlke.bibweb.bookrequest;
 
 import ch.zuehlke.bibweb.book.Book;
+import ch.zuehlke.bibweb.bookrequest.exception.BookRequestNotFoundException;
 import ch.zuehlke.bibweb.config.WebSecurityTestConfig;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Ignore;

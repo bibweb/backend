@@ -1,5 +1,6 @@
 package ch.zuehlke.bibweb.bookrequest;
 
+import ch.zuehlke.bibweb.bookrequest.exception.BookRequestNotFoundException;
 import ch.zuehlke.bibweb.config.WebSecurityTestConfig;
 import org.junit.Test;
 import org.junit.runner.RunWith;

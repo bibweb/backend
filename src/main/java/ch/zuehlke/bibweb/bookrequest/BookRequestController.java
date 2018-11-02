@@ -1,5 +1,6 @@
 package ch.zuehlke.bibweb.bookrequest;
 
+import ch.zuehlke.bibweb.bookrequest.exception.BookRequestNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;

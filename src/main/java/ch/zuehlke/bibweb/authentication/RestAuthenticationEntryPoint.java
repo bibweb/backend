@@ -1,4 +1,4 @@
-package ch.zuehlke.bibweb.config;
+package ch.zuehlke.bibweb.authentication;
 
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;

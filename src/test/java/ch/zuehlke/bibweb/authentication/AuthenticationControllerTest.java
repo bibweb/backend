@@ -1,11 +1,9 @@
 package ch.zuehlke.bibweb.authentication;
 
-import ch.zuehlke.bibweb.book.Book;
 import ch.zuehlke.bibweb.book.BookController;
 import ch.zuehlke.bibweb.book.BookDTO;
 import ch.zuehlke.bibweb.book.BookService;
 import ch.zuehlke.bibweb.checkout.CheckoutService;
-import ch.zuehlke.bibweb.config.TokenProvider;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;

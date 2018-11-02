@@ -15,4 +15,8 @@ public class UserSecurityUtil {
     public static BibwebUser getCurrentUser() {
         return (BibwebUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
+
+    private UserSecurityUtil() {
+        throw new IllegalStateException("Utility class");
+    }
 }

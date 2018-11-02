@@ -1,7 +1,6 @@
 package ch.zuehlke.bibweb.book;
 
 import javax.persistence.*;
-import java.time.Year;
 
 @Entity
 public class Book {

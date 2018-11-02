@@ -1,11 +1,10 @@
 package ch.zuehlke.bibweb.bookrequest;
 
-import ch.zuehlke.bibweb.book.BookRepository;
+import ch.zuehlke.bibweb.bookrequest.exception.BookRequestNotFoundException;
 import ch.zuehlke.bibweb.user.UserSecurityUtil;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,9 +19,12 @@ public class BookRequestService {
 
     public List<BookRequestDTO> getBookRequests() {
         if (UserSecurityUtil.currentUserHasRole("ROLE_ADMIN")) {
-            return this.bookRequestRepository.findAll().stream().map(bookRequest -> mapBookRequestToBookRequestDTO(bookRequest)).collect(Collectors.toList());
+            return this.bookRequestRepository.findAll().stream().map(this::mapBookRequestToBookRequestDTO).collect(Collectors.toList());
         } else {
-            return this.bookRequestRepository.findAllByUser(UserSecurityUtil.currentUserName()).stream().map(bookRequest -> mapBookRequestToBookRequestDTO(bookRequest)).collect(Collectors.toList());
+            return this.bookRequestRepository.findAllByUser(UserSecurityUtil.currentUserName())
+                    .stream()
+                    .map(this::mapBookRequestToBookRequestDTO)
+                    .collect(Collectors.toList());
         }
     }
 

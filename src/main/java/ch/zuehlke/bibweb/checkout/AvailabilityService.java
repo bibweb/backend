@@ -18,14 +18,14 @@ public class AvailabilityService {
     @Autowired
     private BookRepository bookRepository;
 
-    public BookCheckoutState getAvailabilityBasedOnCheckouts(Long bookId) throws BookNotFoundException {
+    public BookCheckoutState getAvailabilityBasedOnCheckouts(Long bookId) {
         if(!bookRepository.findById(bookId).isPresent()) throw new BookNotFoundException();
 
         BookCheckoutState retVal = BookCheckoutState.AVAILABLE;
 
         Optional<Checkout> reservation = checkoutRepository.findTop1ByBookIdOrderByCheckoutDateDesc(bookId);
         if (reservation.isPresent()) {
-            if (reservation.get().getStillOut() == false) {
+            if (!reservation.get().getStillOut()) {
                 retVal = BookCheckoutState.AVAILABLE;
             } else {
                 if (reservation.get().getUserId().equals(UserSecurityUtil.getCurrentUser().getId())) {

@@ -1,4 +1,4 @@
-package ch.zuehlke.bibweb.config;
+package ch.zuehlke.bibweb.authentication;
 
 import io.jsonwebtoken.*;
 import org.springframework.beans.factory.annotation.Value;

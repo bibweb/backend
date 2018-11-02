@@ -1,9 +1,6 @@
 package ch.zuehlke.bibweb.reservation;
 
-import org.springframework.web.bind.annotation.GetMapping;
-
 import javax.persistence.*;
-import javax.persistence.criteria.CriteriaBuilder;
 import java.time.Instant;
 import java.util.Date;
 

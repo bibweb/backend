@@ -1,5 +1,7 @@
 package ch.zuehlke.bibweb.config;
 
+import ch.zuehlke.bibweb.authentication.JwtAuthenticationFilter;
+import ch.zuehlke.bibweb.authentication.RestAuthenticationEntryPoint;
 import ch.zuehlke.bibweb.user.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -32,6 +34,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
+    @Override
     public UserDetailsService userDetailsService() {
         return new UserServiceImpl();
     }
