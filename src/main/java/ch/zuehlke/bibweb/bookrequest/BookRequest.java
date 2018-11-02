@@ -5,6 +5,7 @@ import javax.persistence.*;
 @Entity
 @Table(name = "bookrequest")
 public class BookRequest {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
