@@ -42,7 +42,7 @@ public class BookRequestControllerTest {
     @WithMockUser(username = "user", roles = "USER")
     public void getAllBookRequests() throws Exception {
         given(this.bookRequestService.getBookRequests()).willReturn(
-                Collections.singletonList(new BookRequest("123", "user", BookRequestState.NEW))
+                Collections.singletonList(new BookRequestDTO("123", "user", BookRequestState.NEW))
         );
 
         this.mvc.perform(get("/bookrequest")
@@ -57,7 +57,7 @@ public class BookRequestControllerTest {
     @Test
     @WithMockUser(roles = "ADMIN")
     public void getBookRequestDetails() throws Exception {
-        final BookRequest bookRequest = new BookRequest((long) 1, "123", "user1");
+        final BookRequestDTO bookRequest = new BookRequestDTO((long) 1, "123", "user1");
 
         given(this.bookRequestService.getBookRequestDetails(anyLong())).willReturn(bookRequest);
 
@@ -71,7 +71,7 @@ public class BookRequestControllerTest {
     @Test
     @WithMockUser(username = "user2", roles = "USER")
     public void getBookRequestDetails_Forbidden() throws Exception {
-        final BookRequest bookRequest = new BookRequest((long) 1, "123", "user1");
+        final BookRequestDTO bookRequest = new BookRequestDTO((long) 1, "123", "user1");
 
         given(this.bookRequestService.getBookRequestDetails(anyLong())).willReturn(bookRequest);
 
@@ -91,9 +91,9 @@ public class BookRequestControllerTest {
     @Test
     @WithMockUser(username = "user", roles = "USER")
     public void createBookRequest() throws Exception {
-        final BookRequest bookRequest = new BookRequest("123", "user");
+        final BookRequestDTO bookRequest = new BookRequestDTO("123", "user");
 
-        given(this.bookRequestService.createBookRequest(any(BookRequest.class))).willReturn(bookRequest);
+        given(this.bookRequestService.createBookRequest(any(BookRequestDTO.class))).willReturn(bookRequest);
 
         this.mvc.perform(post("/bookrequest")
                 .with(csrf())
@@ -109,9 +109,9 @@ public class BookRequestControllerTest {
     @Test
     @WithMockUser(username = "admin", roles = "ADMIN")
     public void updateBookRequest() throws Exception {
-        final BookRequest bookRequest = new BookRequest((long) 1, "3932420942092", "testuser", BookRequestState.ACCEPTED);
+        final BookRequestDTO bookRequest = new BookRequestDTO((long) 1, "3932420942092", "testuser", BookRequestState.ACCEPTED);
 
-        given(this.bookRequestService.updateBookRequest(any(BookRequest.class))).willReturn(bookRequest);
+        given(this.bookRequestService.updateBookRequest(any(BookRequestDTO.class))).willReturn(bookRequest);
 
         this.mvc.perform(put("/bookrequest/1")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -123,7 +123,7 @@ public class BookRequestControllerTest {
     @Test
     @WithMockUser(username = "user")
     public void updateBookRequest_Forbidden() throws Exception {
-        final BookRequest bookRequest = new BookRequest("3932420942092", "user", BookRequestState.ACCEPTED);
+        final BookRequestDTO bookRequest = new BookRequestDTO("3932420942092", "user", BookRequestState.ACCEPTED);
 
         this.mvc.perform(put("/bookrequest/1")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -135,10 +135,10 @@ public class BookRequestControllerTest {
     @Test
     @WithMockUser(roles = "ADMIN")
     public void acceptBookRequest() throws Exception {
-        final BookRequest bookRequest = new BookRequest((long) 10, "131561161516", "user", BookRequestState.NEW);
+        final BookRequestDTO bookRequest = new BookRequestDTO((long) 10, "131561161516", "user", BookRequestState.NEW);
 
-        given(this.bookRequestService.acceptBookRequest(any(BookRequest.class))).willReturn(
-                new BookRequest((long) 10, "131561161516", "user", BookRequestState.ACCEPTED)
+        given(this.bookRequestService.acceptBookRequest(any(BookRequestDTO.class))).willReturn(
+                new BookRequestDTO((long) 10, "131561161516", "user", BookRequestState.ACCEPTED)
         );
 
         this.mvc.perform(put("/bookrequest/10/accept")
@@ -152,9 +152,9 @@ public class BookRequestControllerTest {
     @Test
     @WithMockUser(roles = "ADMIN")
     public void acceptBookRequest_notFound() throws Exception {
-        final BookRequest bookRequest = new BookRequest((long) 10, "131561161516", "user", BookRequestState.NEW);
+        final BookRequestDTO bookRequest = new BookRequestDTO((long) 10, "131561161516", "user", BookRequestState.NEW);
 
-        given(this.bookRequestService.acceptBookRequest(any(BookRequest.class)))
+        given(this.bookRequestService.acceptBookRequest(any(BookRequestDTO.class)))
                 .willThrow(new BookRequestNotFoundException());
 
         this.mvc.perform(put("/bookrequest/10/accept")
@@ -167,9 +167,9 @@ public class BookRequestControllerTest {
     @Test
     @WithMockUser(roles = "ADMIN")
     public void acceptBookRequest_wrongState() throws Exception {
-        final BookRequest bookRequest = new BookRequest((long) 10, "131561161516", "user", BookRequestState.NEW);
+        final BookRequestDTO bookRequest = new BookRequestDTO((long) 10, "131561161516", "user", BookRequestState.NEW);
 
-        given(this.bookRequestService.acceptBookRequest(any(BookRequest.class)))
+        given(this.bookRequestService.acceptBookRequest(any(BookRequestDTO.class)))
                 .willThrow(new IllegalArgumentException());
 
         this.mvc.perform(put("/bookrequest/10/accept")
@@ -183,10 +183,10 @@ public class BookRequestControllerTest {
     @Test
     @WithMockUser(roles = "ADMIN")
     public void declineBookRequest() throws Exception {
-        final BookRequest bookRequest = new BookRequest((long) 10, "131561161516", "user", BookRequestState.NEW);
+        final BookRequestDTO bookRequest = new BookRequestDTO((long) 10, "131561161516", "user", BookRequestState.NEW);
 
-        given(this.bookRequestService.declineBookRequest(any(BookRequest.class))).willReturn(
-                new BookRequest((long) 10, "131561161516", "user", BookRequestState.DECLINED)
+        given(this.bookRequestService.declineBookRequest(any(BookRequestDTO.class))).willReturn(
+                new BookRequestDTO((long) 10, "131561161516", "user", BookRequestState.DECLINED)
         );
 
         this.mvc.perform(put("/bookrequest/10/decline")

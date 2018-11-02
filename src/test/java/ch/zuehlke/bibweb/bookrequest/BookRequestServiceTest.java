@@ -48,7 +48,7 @@ public class BookRequestServiceTest {
                 new BookRequest((long) 2, "1316503155", "user2", BookRequestState.NEW)
         ));
 
-        List<BookRequest> bookRequests = this.bookRequestService.getBookRequests();
+        List<BookRequestDTO> bookRequests = this.bookRequestService.getBookRequests();
 
         assertEquals(2, bookRequests.size());
     }
@@ -60,7 +60,7 @@ public class BookRequestServiceTest {
                 new BookRequest((long) 1, "156415416+", "user", BookRequestState.NEW)
         ));
 
-        List<BookRequest> bookRequests = this.bookRequestService.getBookRequests();
+        List<BookRequestDTO> bookRequests = this.bookRequestService.getBookRequests();
 
         assertEquals(1, bookRequests.size());
         assertEquals("user", bookRequests.get(0).getUser());
@@ -71,7 +71,7 @@ public class BookRequestServiceTest {
     public void getAllBookRequest_asUser_withoutRequests() {
         given(this.bookRequestRepository.findAllByUser(anyString())).willReturn(Collections.emptyList());
 
-        List<BookRequest> bookRequests = this.bookRequestService.getBookRequests();
+        List<BookRequestDTO> bookRequests = this.bookRequestService.getBookRequests();
 
         assertEquals(0, bookRequests.size());
     }
@@ -82,7 +82,7 @@ public class BookRequestServiceTest {
 
         given(this.bookRequestRepository.findById((long) 99)).willReturn(Optional.of(bookRequest));
 
-        BookRequest retrievedBookRequest = this.bookRequestService.getBookRequestDetails(99);
+        BookRequestDTO retrievedBookRequest = this.bookRequestService.getBookRequestDetails(99);
 
         assertEquals(bookRequest.getId(), retrievedBookRequest.getId());
         assertEquals(bookRequest.getIsbn(), retrievedBookRequest.getIsbn());
@@ -104,8 +104,8 @@ public class BookRequestServiceTest {
                 new BookRequest((long) 1, "1321515315", "user", BookRequestState.NEW)
         );
 
-        BookRequest bookRequestToSave = new BookRequest("1315531383518");
-        BookRequest savedBookRequest = this.bookRequestService.createBookRequest(bookRequestToSave);
+        BookRequestDTO bookRequestToSave = new BookRequestDTO("1315531383518");
+        BookRequestDTO savedBookRequest = this.bookRequestService.createBookRequest(bookRequestToSave);
 
         assertEquals("user", savedBookRequest.getUser());
         assertEquals(BookRequestState.NEW, savedBookRequest.getState());
@@ -114,12 +114,13 @@ public class BookRequestServiceTest {
     @Test
     @WithMockUser(roles = "ADMIN")
     public void updateBookRequest_asADMIN() {
-        final BookRequest bookRequest = new BookRequest((long) 1, "215155151", "user", BookRequestState.NEW);
+        final BookRequestDTO bookRequest = new BookRequestDTO((long) 1, "215155151", "user", BookRequestState.NEW);
+        final BookRequest bookRequestEntity = new BookRequest((long) 1, "215155151", "user", BookRequestState.NEW);
 
         given(this.bookRequestRepository.existsById(anyLong())).willReturn(true);
-        given(this.bookRequestRepository.save(any(BookRequest.class))).willReturn(bookRequest);
+        given(this.bookRequestRepository.save(any(BookRequest.class))).willReturn(bookRequestEntity);
 
-        final BookRequest updatedBookRequest = this.bookRequestService.updateBookRequest(bookRequest);
+        final BookRequestDTO updatedBookRequest = this.bookRequestService.updateBookRequest(bookRequest);
 
         assertEquals(bookRequest.getId(), updatedBookRequest.getId());
     }
@@ -127,7 +128,7 @@ public class BookRequestServiceTest {
     @Test(expected = BookRequestNotFoundException.class)
     @WithMockUser(roles = "ADMIN")
     public void updateBookRequest_asADMIN_nonExistingBookRequest() {
-        final BookRequest bookRequest = new BookRequest((long) 1, "215155151", "user", BookRequestState.NEW);
+        final BookRequestDTO bookRequest = new BookRequestDTO((long) 1, "215155151", "user", BookRequestState.NEW);
 
         given(this.bookRequestRepository.existsById(anyLong())).willReturn(false);
 
@@ -137,7 +138,7 @@ public class BookRequestServiceTest {
     @Test(expected = AccessDeniedException.class)
     @WithMockUser(roles = "USER")
     public void updateBookRequest_asUSER_AccessDenied() {
-        final BookRequest bookRequest = new BookRequest((long) 1, "215155151", "user", BookRequestState.NEW);
+        final BookRequestDTO bookRequest = new BookRequestDTO((long) 1, "215155151", "user", BookRequestState.NEW);
 
         this.bookRequestService.updateBookRequest(bookRequest);
     }
@@ -145,13 +146,15 @@ public class BookRequestServiceTest {
     @Test
     @WithMockUser(roles = "ADMIN")
     public void acceptBookRequest() {
-        final BookRequest bookRequest = new BookRequest((long) 1, "215155151", "user", BookRequestState.NEW);
+        final BookRequestDTO bookRequest = new BookRequestDTO((long) 1, "215155151", "user", BookRequestState.NEW);
 
-        given(this.bookRequestRepository.existsById((long) 1)).willReturn(true);
+        given(this.bookRequestRepository.findById((long) 1)).willReturn(Optional.of(
+                new BookRequest((long) 1, "215155151", "user", BookRequestState.NEW)
+        ));
         given(this.bookRequestRepository.saveAndFlush(any(BookRequest.class)))
                 .willReturn(new BookRequest((long) 1, "215155151", "user", BookRequestState.ACCEPTED));
 
-        BookRequest acceptedBookRequest = this.bookRequestService.acceptBookRequest(bookRequest);
+        BookRequestDTO acceptedBookRequest = this.bookRequestService.acceptBookRequest(bookRequest);
 
         assertEquals(BookRequestState.ACCEPTED, acceptedBookRequest.getState());
 
@@ -160,7 +163,7 @@ public class BookRequestServiceTest {
     @Test(expected = BookRequestNotFoundException.class)
     @WithMockUser(roles = "ADMIN")
     public void acceptBookRequest_notFound() {
-        final BookRequest bookRequest = new BookRequest((long) 1, "215155151", "user", BookRequestState.NEW);
+        final BookRequestDTO bookRequest = new BookRequestDTO((long) 1, "215155151", "user", BookRequestState.NEW);
 
         given(this.bookRequestRepository.existsById((long) 1)).willReturn(false);
 
@@ -170,13 +173,15 @@ public class BookRequestServiceTest {
     @Test
     @WithMockUser(roles = "ADMIN")
     public void declineBookRequest() {
-        final BookRequest bookRequest = new BookRequest((long) 1, "215155151", "user", BookRequestState.NEW);
+        final BookRequestDTO bookRequest = new BookRequestDTO((long) 1, "215155151", "user", BookRequestState.NEW);
 
-        given(this.bookRequestRepository.existsById((long) 1)).willReturn(true);
+        given(this.bookRequestRepository.findById((long) 1)).willReturn(Optional.of(
+                new BookRequest((long) 1, "215155151", "user", BookRequestState.NEW)
+        ));
         given(this.bookRequestRepository.saveAndFlush(any(BookRequest.class)))
                 .willReturn(new BookRequest((long) 1, "215155151", "user", BookRequestState.DECLINED));
 
-        BookRequest acceptedBookRequest = this.bookRequestService.declineBookRequest(bookRequest);
+        BookRequestDTO acceptedBookRequest = this.bookRequestService.declineBookRequest(bookRequest);
 
         assertEquals(BookRequestState.DECLINED, acceptedBookRequest.getState());
 
@@ -185,7 +190,7 @@ public class BookRequestServiceTest {
     @Test(expected = BookRequestNotFoundException.class)
     @WithMockUser(roles = "ADMIN")
     public void declineBookRequest_notFound() {
-        final BookRequest bookRequest = new BookRequest((long) 1, "215155151", "user", BookRequestState.NEW);
+        final BookRequestDTO bookRequest = new BookRequestDTO((long) 1, "215155151", "user", BookRequestState.NEW);
 
         given(this.bookRequestRepository.existsById((long) 1)).willReturn(false);
 

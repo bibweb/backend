@@ -1,6 +1,8 @@
 package ch.zuehlke.bibweb.bookrequest;
 
+import ch.zuehlke.bibweb.book.BookRepository;
 import ch.zuehlke.bibweb.user.UserSecurityUtil;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -8,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class BookRequestService {
@@ -15,45 +18,47 @@ public class BookRequestService {
     @Autowired
     private BookRequestRepository bookRequestRepository;
 
-    public List<BookRequest> getBookRequests() {
+    public List<BookRequestDTO> getBookRequests() {
         if (UserSecurityUtil.currentUserHasRole("ROLE_ADMIN")) {
-            return this.bookRequestRepository.findAll();
+            return this.bookRequestRepository.findAll().stream().map(bookRequest -> mapBookRequestToBookRequestDTO(bookRequest)).collect(Collectors.toList());
         } else {
-            return this.bookRequestRepository.findAllByUser(UserSecurityUtil.currentUserName());
+            return this.bookRequestRepository.findAllByUser(UserSecurityUtil.currentUserName()).stream().map(bookRequest -> mapBookRequestToBookRequestDTO(bookRequest)).collect(Collectors.toList());
         }
     }
 
-    public BookRequest createBookRequest(BookRequest bookRequest) {
+    public BookRequestDTO createBookRequest(BookRequestDTO bookRequest) {
         bookRequest.setUser(UserSecurityUtil.currentUserName());
-        return this.bookRequestRepository.save(bookRequest);
+        return mapBookRequestToBookRequestDTO(this.bookRequestRepository.save(mapBookRequestDTOToBookRequest(bookRequest)));
     }
 
-    public BookRequest getBookRequestDetails(final long bookRequestId) {
+    public BookRequestDTO getBookRequestDetails(final long bookRequestId) {
         final Optional<BookRequest> bookRequest = this.bookRequestRepository.findById(bookRequestId);
         if (bookRequest.isPresent()) {
-            return bookRequest.get();
+            return mapBookRequestToBookRequestDTO(bookRequest.get());
         } else {
             throw new BookRequestNotFoundException();
         }
     }
 
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
-    public BookRequest updateBookRequest(final BookRequest bookRequest) {
+    public BookRequestDTO updateBookRequest(final BookRequestDTO bookRequest) {
         if (this.bookRequestRepository.existsById(bookRequest.getId())) {
-            return this.bookRequestRepository.save(bookRequest);
+            return mapBookRequestToBookRequestDTO(this.bookRequestRepository.save(mapBookRequestDTOToBookRequest(bookRequest)));
         } else {
             throw new BookRequestNotFoundException();
         }
     }
 
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
-    public BookRequest acceptBookRequest(BookRequest bookRequest) {
-        if (bookRequest.getState() != BookRequestState.NEW) {
-            throw new IllegalArgumentException("BookRequest doesn't allow to be accepted. Must be in state NEW, current " +bookRequest.getState());
+    public BookRequestDTO acceptBookRequest(BookRequestDTO bookRequestDto) {
+        if (bookRequestDto.getState() != BookRequestState.NEW) {
+            throw new IllegalArgumentException("BookRequest doesn't allow to be accepted. Must be in state NEW, current " +bookRequestDto.getState());
         }
-        if (this.bookRequestRepository.existsById(bookRequest.getId())) {
-            bookRequest.setState(BookRequestState.ACCEPTED);
-            return this.bookRequestRepository.saveAndFlush(bookRequest);
+
+        final Optional<BookRequest> bookRequest = this.bookRequestRepository.findById(bookRequestDto.getId());
+        if (bookRequest.isPresent()) {
+            bookRequest.get().setState(BookRequestState.ACCEPTED);
+            return mapBookRequestToBookRequestDTO(this.bookRequestRepository.saveAndFlush(bookRequest.get()));
 
         } else {
             throw new BookRequestNotFoundException();
@@ -61,16 +66,29 @@ public class BookRequestService {
     }
 
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
-    public BookRequest declineBookRequest(BookRequest bookRequest) {
-        if (bookRequest.getState() != BookRequestState.NEW) {
-            throw new IllegalArgumentException("BookRequest doesn't allow to be declined. Must be in state NEW, current " +bookRequest.getState());
+    public BookRequestDTO declineBookRequest(BookRequestDTO bookRequestDto) {
+        if (bookRequestDto.getState() != BookRequestState.NEW) {
+            throw new IllegalArgumentException("BookRequest doesn't allow to be declined. Must be in state NEW, current " +bookRequestDto.getState());
         }
-        if (this.bookRequestRepository.existsById(bookRequest.getId())) {
-            bookRequest.setState(BookRequestState.DECLINED);
-            return this.bookRequestRepository.saveAndFlush(bookRequest);
 
+        final Optional<BookRequest> bookRequest = this.bookRequestRepository.findById(bookRequestDto.getId());
+        if (bookRequest.isPresent()) {
+            bookRequest.get().setState(BookRequestState.DECLINED);
+            return mapBookRequestToBookRequestDTO(this.bookRequestRepository.saveAndFlush(bookRequest.get()));
         } else {
             throw new BookRequestNotFoundException();
         }
+    }
+
+    private BookRequest mapBookRequestDTOToBookRequest(BookRequestDTO dto) {
+        BookRequest bookRequest = new BookRequest();
+        BeanUtils.copyProperties(dto, bookRequest);
+        return bookRequest;
+    }
+
+    private BookRequestDTO mapBookRequestToBookRequestDTO(BookRequest bookRequest) {
+        BookRequestDTO dto = new BookRequestDTO();
+        BeanUtils.copyProperties(bookRequest, dto);
+        return dto;
     }
 }

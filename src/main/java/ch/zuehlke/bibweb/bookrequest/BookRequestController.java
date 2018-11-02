@@ -20,33 +20,33 @@ public class BookRequestController {
 
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
-    public List<BookRequest> getBookRequests() {
+    public List<BookRequestDTO> getBookRequests() {
         return this.bookRequestService.getBookRequests();
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public BookRequest createBookRequest(@RequestBody BookRequest bookRequest) {
+    public BookRequestDTO createBookRequest(@RequestBody BookRequestDTO bookRequest) {
         return bookRequestService.createBookRequest(bookRequest);
     }
 
     @GetMapping("/{id}")
     @PostAuthorize("hasRole('ADMIN') or returnObject.user.equals(authentication.name)")
-    public BookRequest getBookRequestDetails(@PathVariable Integer id) {
+    public BookRequestDTO getBookRequestDetails(@PathVariable Integer id) {
         return this.bookRequestService.getBookRequestDetails(id);
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public BookRequest updateBookRequest(@PathVariable long id, @RequestBody BookRequest bookRequest) {
+    public BookRequestDTO updateBookRequest(@PathVariable long id, @RequestBody BookRequestDTO bookRequest) {
         bookRequest.setId(id);
         return this.bookRequestService.updateBookRequest(bookRequest);
     }
 
     @PutMapping("/{id}/accept")
     @PreAuthorize("hasRole('ADMIN')")
-    public BookRequest acceptBookRequest(@PathVariable long id, @RequestBody BookRequest bookRequest) {
+    public BookRequestDTO acceptBookRequest(@PathVariable long id, @RequestBody BookRequestDTO bookRequest) {
         if (id != bookRequest.getId()) {
             throw new IllegalArgumentException("Body doesn't match url.");
         }
@@ -55,7 +55,7 @@ public class BookRequestController {
 
     @PutMapping("/{id}/decline")
     @PreAuthorize("hasRole('ADMIN')")
-    public BookRequest declineBookRequest(@PathVariable long id, @RequestBody BookRequest bookRequest) {
+    public BookRequestDTO declineBookRequest(@PathVariable long id, @RequestBody BookRequestDTO bookRequest) {
         if (id != bookRequest.getId()) {
             throw new IllegalArgumentException("Body doesn't match url.");
         }
