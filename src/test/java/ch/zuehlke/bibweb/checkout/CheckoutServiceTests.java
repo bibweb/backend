@@ -1,11 +1,10 @@
-package ch.zuehlke.bibweb.book;
+package ch.zuehlke.bibweb.checkout;
 
+import ch.zuehlke.bibweb.book.Book;
+import ch.zuehlke.bibweb.book.BookCheckoutState;
 import ch.zuehlke.bibweb.book.exception.*;
-import ch.zuehlke.bibweb.checkout.AvailabilityService;
-import ch.zuehlke.bibweb.checkout.CheckoutService;
 import ch.zuehlke.bibweb.config.UserDetailTestService;
-import ch.zuehlke.bibweb.checkout.Checkout;
-import ch.zuehlke.bibweb.checkout.CheckoutRepository;
+import ch.zuehlke.bibweb.config.WebSecurityTestConfig;
 import ch.zuehlke.bibweb.user.BibwebUser;
 import org.junit.Assert;
 import org.junit.Before;
@@ -17,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Import;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -26,7 +26,8 @@ import java.util.Optional;
 import static org.mockito.ArgumentMatchers.any;
 
 @RunWith(SpringRunner.class)
-public class BookCheckoutTests {
+@Import(WebSecurityTestConfig.class)
+public class CheckoutServiceTests {
 
     @TestConfiguration
     static class BookServiceTestContextConfiguration {

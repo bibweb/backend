@@ -11,14 +11,17 @@ import java.util.HashSet;
 @Service
 public class UserDetailTestService implements UserDetailsService {
 
+    public static final long USER_ETIENNE_ID = 1L;
+    public static final long USER_STEFAN_ID = 2L;
+
     private HashMap<String, BibwebUser> userList = new HashMap<String, BibwebUser>() {{
         put("Etienne", new BibwebUser() {{
-            setId(1L);
+            setId(USER_ETIENNE_ID);
             setUsername("Etienne");
             setRoles(new HashSet<>());
         }});
         put("Stefan", new BibwebUser() {{
-            setId(2L);
+            setId(USER_STEFAN_ID);
             setUsername("Stefan");
             setRoles(new HashSet<>());
         }});

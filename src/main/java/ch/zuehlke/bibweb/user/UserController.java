@@ -5,6 +5,8 @@ import ch.zuehlke.bibweb.checkout.Checkout;
 import ch.zuehlke.bibweb.checkout.CheckoutDTO;
 import ch.zuehlke.bibweb.checkout.CheckoutService;
 import ch.zuehlke.bibweb.reservation.ReservationService;
+import ch.zuehlke.bibweb.reservation.exception.ActiveReservationDoesNotExistsForUserException;
+import ch.zuehlke.bibweb.reservation.exception.ReservationAlreadyExistsForUserException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -54,16 +56,26 @@ public class UserController {
         checkoutService.returnBook((long) id, (long) bookId);
     }
 
-    @PutMapping("/{id}/reservations/books/{bookdId}")
+    @PutMapping("/{id}/reservations/books/{bookId}")
     @ResponseStatus(HttpStatus.CREATED)
     public void reserveBook(@PathVariable("id") int id, @PathVariable("bookId") long bookId) {
         reservationService.createReservation((long) id, (long) bookId);
     }
 
-    @DeleteMapping("/{id}/reservations/books/{bookdId}")
+    @DeleteMapping("/{id}/reservations/books/{bookId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void removeReservation(@PathVariable("id") int id, @PathVariable("bookId") int bookId) {
         reservationService.removeReservation((long) id, (long) bookId);
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public void activeReservationDoesNotExist(ActiveReservationDoesNotExistsForUserException ex) {
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void reservationAlreadyExistsForUser(ReservationAlreadyExistsForUserException ex) {
     }
 
     @ExceptionHandler
