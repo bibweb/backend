@@ -3,7 +3,9 @@ package ch.zuehlke.bibweb.authentication;
 import ch.zuehlke.bibweb.book.BookController;
 import ch.zuehlke.bibweb.book.BookDTO;
 import ch.zuehlke.bibweb.book.BookService;
+import ch.zuehlke.bibweb.bookrequest.BookRequestController;
 import ch.zuehlke.bibweb.checkout.CheckoutService;
+import ch.zuehlke.bibweb.config.WebSecurityTestConfig;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -32,7 +34,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @RunWith(SpringRunner.class)
 @WebMvcTest({BookController.class, AuthenticationController.class})
-@ContextConfiguration
+@ContextConfiguration(classes = {WebSecurityTestConfig.class, BookController.class, AuthenticationController.class})
 @WebAppConfiguration
 public class AuthenticationControllerTest {
 
