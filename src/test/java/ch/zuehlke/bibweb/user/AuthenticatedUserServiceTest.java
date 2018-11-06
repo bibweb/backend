@@ -51,7 +51,7 @@ public class AuthenticatedUserServiceTest {
 
     @Test
     @WithUserDetails(value = "Etienne", userDetailsServiceBeanName = "userDetailsService")
-    public void whenRequestingCurrentUserAsEtienne_thenReturnEtiennee() {
+    public void whenRequestingCurrentUserAsEtienne_thenReturnEtienne() {
         BibwebUserDTO dto = userService.getCurrentUser();
         Assert.assertEquals("Etienne", dto.getUsername());
         Assert.assertEquals(1, (long) dto.getId());
