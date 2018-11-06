@@ -1,13 +1,11 @@
 package ch.zuehlke.bibweb.authentication;
 
 import ch.zuehlke.bibweb.book.BookController;
-import ch.zuehlke.bibweb.book.BookDTO;
 import ch.zuehlke.bibweb.book.BookService;
-import ch.zuehlke.bibweb.bookrequest.BookRequestController;
 import ch.zuehlke.bibweb.checkout.CheckoutService;
 import ch.zuehlke.bibweb.config.WebSecurityTestConfig;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,26 +13,24 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-import java.util.ArrayList;
-
 import static org.mockito.BDDMockito.given;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
-@WebMvcTest({BookController.class, AuthenticationController.class})
-@ContextConfiguration(classes = {WebSecurityTestConfig.class, BookController.class, AuthenticationController.class})
+@WebMvcTest({AuthenticationController.class, BookController.class})
+@ContextConfiguration(classes = {WebSecurityTestConfig.class, AuthenticationController.class, BookController.class})
 @WebAppConfiguration
 public class AuthenticationControllerTest {
 
@@ -45,16 +41,16 @@ public class AuthenticationControllerTest {
     private BookService bookService;
 
     @MockBean
-    private CheckoutService checkoutService;
-
-    @Autowired
-    private WebApplicationContext context;
-
-    @MockBean
     private AuthenticationManager authenticationManager;
 
     @MockBean
     private TokenProvider jwtTokenUtil;
+
+    @MockBean
+    private CheckoutService checkoutService;
+
+    @Autowired
+    private WebApplicationContext context;
 
     @Before
     public void setup() {
@@ -65,52 +61,28 @@ public class AuthenticationControllerTest {
     }
 
     @Test
-    public void whenNoTokenSubmitted_thenStatusIsUnauthorized() throws Exception {
-        BookDTO book0 = new BookDTO();
-        book0.setId(0L);
-        book0.setTitle("Buch 0");
-
-        BookDTO book1 = new BookDTO();
-        book1.setId(1L);
-        book1.setTitle("Buch 1");
-
-        given(bookService.getAllBooks()).willReturn(new ArrayList<BookDTO>() {{
-            add(book0);
-            add(book1);
-        }});
-
+    public void whenNoTokenSubmitted_thenStatusIsNotOk() throws Exception {
         mvc.perform(get("/book")
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isUnauthorized());
+                .contentType(MediaType.APPLICATION_JSON)
+                .characterEncoding("UTF8"))
+                .andExpect(status().isForbidden());
     }
 
     @Test
-    @Ignore("not yet working")
-    public void whenTokenSubmitted_thenStatusIsOk() throws Exception {
-        BookDTO book0 = new BookDTO();
-        book0.setId(0L);
-        book0.setTitle("Buch 0");
+    @WithMockUser
+    public void whenRequestingToken_thenGetTokenBack() throws Exception {
+        given(jwtTokenUtil.generateToken(null)).willReturn("54321TOKEN");
 
-        BookDTO book1 = new BookDTO();
-        book1.setId(1L);
-        book1.setTitle("Buch 1");
-
-        given(bookService.getAllBooks()).willReturn(new ArrayList<BookDTO>() {{
-            add(book0);
-            add(book1);
-        }});
+        LoginUser user = new LoginUser();
+        user.setUsername("Etienne");
+        user.setPassword("12345");
 
         mvc.perform(post("/token/generate-token")
-                .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"username\": \"admin\", \"password\": \"password\"")
+                .content(new ObjectMapper().writeValueAsString(user))
                 .characterEncoding("UTF8"))
-                .andExpect(status().isOk());
-
-
-        mvc.perform(get("/book/1").with(user("etienne").roles("USER"))
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.token").value("54321TOKEN"));
     }
 
 }
