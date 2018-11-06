@@ -37,10 +37,16 @@ public class UserController {
         return checkoutService.getCheckouts((long) id);
     }
 
-    @PutMapping("/{id}/checkouts/book/{bookId}")
+    @PutMapping("/{id}/checkouts/books/{bookId}")
     @ResponseStatus(HttpStatus.CREATED)
     public void checkoutBook(@PathVariable("id") int id, @PathVariable("bookId") long bookId) {
-        checkoutService.checkoutBook((long) id, (long) bookId);
+        checkoutService.checkoutBook((long) id, bookId);
+    }
+
+    @DeleteMapping("/{id}/checkouts/books/{bookId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void returnBook(@PathVariable("id") int id, @PathVariable("bookId") int bookId) {
+        checkoutService.returnBook((long) id, (long) bookId);
     }
 
 }
