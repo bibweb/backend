@@ -34,36 +34,6 @@ public class BookController {
         bookService.updateBook((long) id, book);
     }
 
-    @PutMapping("/books/{id}/checkouts")
-    @ResponseStatus(HttpStatus.CREATED)
-    public void checkoutBook(@PathVariable("id") int id) {
-        checkoutService.checkoutBookForCurrentUser((long) id);
-    }
-
-    @DeleteMapping("/books/{id}/checkouts")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void returnBook(@PathVariable("id") int id) { checkoutService.returnBookForCurrentUser((long) id); }
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.FORBIDDEN)
-    public void checkoutBelongsToOtherUser(CannotDeleteCheckoutForOtherUserException ex){
-    }
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public void checkoutDoesNotExist(CheckoutDoesNotExistException ex){
-    }
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void checkoutAlreadyExists(CheckoutAlreadyExistsForUserException ex){
-    }
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.FORBIDDEN)
-    public void bookIsCheckedoutByAnotherUser(BookCannotBeCheckedOut ex) {
-    }
-
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
     private void bookNotFound(BookNotFoundException ex) {

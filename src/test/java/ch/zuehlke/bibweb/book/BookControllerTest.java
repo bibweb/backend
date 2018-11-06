@@ -1,6 +1,7 @@
 package ch.zuehlke.bibweb.book;
 import ch.zuehlke.bibweb.book.exception.*;
 import ch.zuehlke.bibweb.checkout.CheckoutService;
+import ch.zuehlke.bibweb.config.UserDetailTestService;
 import ch.zuehlke.bibweb.config.WebSecurityTestConfig;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
@@ -8,9 +9,13 @@ import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Bean;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
@@ -142,61 +147,5 @@ public class BookControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(new ObjectMapper().writeValueAsString(book)))
                 .andExpect(status().isOk());
-    }
-
-    @Test
-    @WithMockUser(authorities = "ROLE_USER")
-    public void whenCheckingOutBook_thenStatusShouldBeIsCreated() throws Exception {
-        this.mvc.perform(put("/books/1/checkouts")
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isCreated());
-    }
-
-    @Test
-    @WithMockUser(authorities = "ROLE_USER")
-    public void whenCheckingOutBookAndNotPossible_thenStatusShouldBeForbidden() throws Exception {
-        Mockito.when(checkoutService.checkoutBookForCurrentUser(1L)).thenThrow(BookCannotBeCheckedOut.class);
-
-        this.mvc.perform(put("/books/1/checkouts")
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isForbidden());
-    }
-
-    @Test
-    @WithMockUser(authorities = "ROLE_USER")
-    public void whenCheckingOutBookAndAlreadyExistsForUser_thenStatusShouldBeNoContent() throws Exception {
-        Mockito.when(checkoutService.checkoutBookForCurrentUser(1L)).thenThrow(CheckoutAlreadyExistsForUserException.class);
-
-        this.mvc.perform(put("/books/1/checkouts")
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isNoContent());
-    }
-
-    @Test
-    @WithMockUser(authorities = "ROLE_USER")
-    public void whenDeletingCheckoutForOtherUser_thenStatusShouldBeForbidden() throws Exception {
-        Mockito.doThrow(CannotDeleteCheckoutForOtherUserException.class).when(checkoutService).returnBookForCurrentUser(1L);
-
-        this.mvc.perform(delete("/books/1/checkouts")
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isForbidden());
-    }
-
-    @Test
-    @WithMockUser(authorities = "ROLE_USER")
-    public void whenDeletingNonExistingCheckout_thenStatusShouldBeNotFound() throws Exception {
-        Mockito.doThrow(CheckoutDoesNotExistException.class).when(checkoutService).returnBookForCurrentUser(1L);
-
-        this.mvc.perform(delete("/books/1/checkouts")
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isNotFound());
-    }
-
-    @Test
-    @WithMockUser(authorities = "ROLE_USER")
-    public void whenDeletingExistingCheckout_thenStatusShouldBeNoContent() throws Exception {
-        this.mvc.perform(delete("/books/1/checkouts")
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isNoContent());
     }
 }
