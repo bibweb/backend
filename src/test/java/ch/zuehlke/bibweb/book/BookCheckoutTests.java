@@ -75,6 +75,7 @@ public class BookCheckoutTests {
 
         Mockito.when(availabilityService.getAvailabilityBasedOnCheckouts(1L)).thenReturn(BookCheckoutState.AVAILABLE);
         Mockito.when(checkoutRepository.findTop1ByBookIdOrderByCheckoutDateDesc(1L)).thenReturn(Optional.of(checkout));
+        Mockito.when(checkoutRepository.saveAndFlush(any(Checkout.class))).thenReturn(new Checkout());
 
         checkoutService.checkoutBookForCurrentUser(book.getId());
 

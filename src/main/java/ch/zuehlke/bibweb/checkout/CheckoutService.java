@@ -3,12 +3,14 @@ package ch.zuehlke.bibweb.checkout;
 import ch.zuehlke.bibweb.book.BookCheckoutState;
 import ch.zuehlke.bibweb.book.exception.*;
 import ch.zuehlke.bibweb.user.UserSecurityUtil;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class CheckoutService {
@@ -20,11 +22,11 @@ public class CheckoutService {
     private AvailabilityService availabilityService;
 
     @PreAuthorize("hasAuthority('ROLE_LIBRARIAN') or hasAuthority('ROLE_ADMIN') or authentication.principal.getId() == #userId")
-    public List<Checkout> getCheckouts(long userId) {
-        return checkoutRepository.findAllByUserId(userId);
+    public List<CheckoutDTO> getCheckouts(long userId) {
+        return checkoutRepository.findAllByUserId(userId).stream().map(this::mapCheckoutEntityToDTO).collect(Collectors.toList());
     }
 
-    public Checkout checkoutBookForCurrentUser(long bookId) {
+    public CheckoutDTO checkoutBookForCurrentUser(long bookId) {
         return checkoutBook(UserSecurityUtil.getCurrentUser().getId(), bookId);
     }
 
@@ -33,7 +35,7 @@ public class CheckoutService {
     }
 
     @PreAuthorize("hasAuthority('ROLE_LIBRARIAN') or hasAuthority('ROLE_ADMIN') or authentication.principal.getId() == #userId")
-    public Checkout checkoutBook(long userId, long bookId) {
+    public CheckoutDTO checkoutBook(long userId, long bookId) {
         BookCheckoutState availabilityState = availabilityService.getAvailabilityBasedOnCheckouts(bookId);
 
         if (availabilityState.equals(BookCheckoutState.AVAILABLE)) {
@@ -43,7 +45,7 @@ public class CheckoutService {
             checkout.setUserId(UserSecurityUtil.getCurrentUser().getId());
 
             checkout = checkoutRepository.saveAndFlush(checkout);
-            return checkout;
+            return mapCheckoutEntityToDTO(checkout);
         }
         if (availabilityState.equals(BookCheckoutState.CHECKEDOUT_BY_YOU)) {
             throw new CheckoutAlreadyExistsForUserException();
@@ -69,6 +71,12 @@ public class CheckoutService {
         } else {
             throw new CannotDeleteCheckoutForOtherUserException();
         }
+    }
+
+    private CheckoutDTO mapCheckoutEntityToDTO(Checkout checkout) {
+        CheckoutDTO dto = new CheckoutDTO();
+        BeanUtils.copyProperties(checkout, dto);
+        return dto;
     }
 
 }

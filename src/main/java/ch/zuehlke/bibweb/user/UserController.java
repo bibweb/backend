@@ -1,6 +1,7 @@
 package ch.zuehlke.bibweb.user;
 
 import ch.zuehlke.bibweb.checkout.Checkout;
+import ch.zuehlke.bibweb.checkout.CheckoutDTO;
 import ch.zuehlke.bibweb.checkout.CheckoutService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -32,7 +33,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}/checkouts")
-    public List<Checkout> getCheckoutsByUser(@PathVariable("id") int id) {
+    public List<CheckoutDTO> getCheckoutsByUser(@PathVariable("id") int id) {
         return checkoutService.getCheckouts((long) id);
     }
 
