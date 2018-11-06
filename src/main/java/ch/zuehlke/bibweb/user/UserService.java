@@ -1,11 +1,13 @@
 package ch.zuehlke.bibweb.user;
 
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
@@ -37,7 +39,17 @@ public class UserService {
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    public List<BibwebUser> getUsers() {
-        return this.userRepository.findAll();
+    public List<BibwebUserDTO> getUsers() {
+        return this.userRepository.findAll().stream().map(this::mapBibwebUserEntityToDto).collect(Collectors.toList());
+    }
+
+    public BibwebUserDTO getCurrentUser() {
+        return mapBibwebUserEntityToDto(UserSecurityUtil.getCurrentUser());
+    }
+
+    private BibwebUserDTO mapBibwebUserEntityToDto(BibwebUser user) {
+        BibwebUserDTO dto = new BibwebUserDTO();
+        BeanUtils.copyProperties(user, dto, "password");
+        return dto;
     }
 }

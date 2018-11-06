@@ -19,9 +19,15 @@ public class UserController {
     @Autowired
     private CheckoutService checkoutService;
 
+    @GetMapping("/me")
+    public BibwebUserDTO getCurrentUser() {
+        return userService.getCurrentUser();
+    }
+
+
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public List<BibwebUser> getUsers() {
+    public List<BibwebUserDTO> getUsers() {
         return this.userService.getUsers();
     }
 
