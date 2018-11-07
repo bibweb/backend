@@ -4,6 +4,7 @@ import ch.zuehlke.bibweb.book.Book;
 import ch.zuehlke.bibweb.book.BookCheckoutState;
 import ch.zuehlke.bibweb.book.BookService;
 import ch.zuehlke.bibweb.book.exception.*;
+import ch.zuehlke.bibweb.config.MethodSecurityConfig;
 import ch.zuehlke.bibweb.config.UserDetailTestService;
 import ch.zuehlke.bibweb.config.WebSecurityTestConfig;
 import ch.zuehlke.bibweb.user.BibwebUser;
@@ -27,7 +28,7 @@ import java.util.Optional;
 import static org.mockito.ArgumentMatchers.any;
 
 @RunWith(SpringRunner.class)
-@Import(WebSecurityTestConfig.class)
+@Import(MethodSecurityConfig.class)
 public class CheckoutServiceTests {
 
     @TestConfiguration

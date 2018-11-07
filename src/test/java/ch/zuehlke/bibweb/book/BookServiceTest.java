@@ -3,6 +3,7 @@ package ch.zuehlke.bibweb.book;
 import ch.zuehlke.bibweb.book.exception.BookNotFoundException;
 import ch.zuehlke.bibweb.checkout.AvailabilityService;
 import ch.zuehlke.bibweb.checkout.CheckoutRepository;
+import ch.zuehlke.bibweb.config.MethodSecurityConfig;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -13,6 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Import;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.Arrays;
@@ -22,6 +25,7 @@ import java.util.Optional;
 import static org.mockito.BDDMockito.given;
 
 @RunWith(SpringRunner.class)
+@Import(MethodSecurityConfig.class)
 public class BookServiceTest {
 
     @TestConfiguration
@@ -34,9 +38,6 @@ public class BookServiceTest {
 
     @MockBean
     private BookRepository bookRepository;
-
-    @MockBean
-    private CheckoutRepository checkoutRepository;
 
     @MockBean
     private AvailabilityService availabilityService;
@@ -59,7 +60,7 @@ public class BookServiceTest {
         Book book2 = BookTestUtil.buildBook(2L, "Name2", "3-680-08783-7", 321, 2018, BookType.THRILLER);
         Book book3 = BookTestUtil.buildBook(3L, "Buch", "978-3-86680-192-9", 111, 1965, BookType.UNKNOWN);
 
-        Mockito.when(bookRepository.findAll()).thenReturn(Arrays.asList(new Book[]{book1, book2, book3}));
+        Mockito.when(bookRepository.findAll()).thenReturn(Arrays.asList(book1, book2, book3));
 
         List<BookDTO> bookList = bookService.getAllBooks();
 
@@ -84,6 +85,7 @@ public class BookServiceTest {
     }
 
     @Test
+    @WithMockUser(roles = "ADMIN")
     public void whenUpdatingBook_thenBookShouldBeUpdated() {
         Book oldBook = new Book();
         oldBook.setId(1L);

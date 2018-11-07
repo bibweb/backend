@@ -1,6 +1,6 @@
-INSERT INTO bibweb_user (username, password) VALUES ('user1', '$2a$04$lQy2JmnTrdB7Nyv/XadQZ.nRiUcXGbXuRcnjPolBC9nYiDI2iJn3i');
-INSERT INTO bibweb_user (username, password) VALUES ('user2', '$2a$04$guukvXyZTW4Rm2g3nhf.V.NwZxVdiitWbSvpg5q.6.gTvAq6.35jm');
-INSERT INTO bibweb_user (username, password) VALUES ('admin', '$2a$04$K4n6dpeDK4RXp.t/HY6tDOtfzmEoQzytd9zoBoZ0MzfNNYgwV51sO');
+INSERT INTO bibweb_user (username, password) VALUES ('user1', '{bcrypt}$2a$04$lQy2JmnTrdB7Nyv/XadQZ.nRiUcXGbXuRcnjPolBC9nYiDI2iJn3i');
+INSERT INTO bibweb_user (username, password) VALUES ('user2', '{bcrypt}$2a$04$guukvXyZTW4Rm2g3nhf.V.NwZxVdiitWbSvpg5q.6.gTvAq6.35jm');
+INSERT INTO bibweb_user (username, password) VALUES ('admin', '{bcrypt}$2a$04$K4n6dpeDK4RXp.t/HY6tDOtfzmEoQzytd9zoBoZ0MzfNNYgwV51sO');
 
 INSERT INTO role (rolename) VALUES('ADMIN');
 INSERT INTO role (rolename) VALUES('USER');
