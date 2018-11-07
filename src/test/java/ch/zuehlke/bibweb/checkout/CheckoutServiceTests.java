@@ -2,6 +2,7 @@ package ch.zuehlke.bibweb.checkout;
 
 import ch.zuehlke.bibweb.book.Book;
 import ch.zuehlke.bibweb.book.BookCheckoutState;
+import ch.zuehlke.bibweb.book.BookService;
 import ch.zuehlke.bibweb.book.exception.*;
 import ch.zuehlke.bibweb.config.MethodSecurityConfig;
 import ch.zuehlke.bibweb.config.UserDetailTestService;
@@ -48,6 +49,9 @@ public class CheckoutServiceTests {
 
     @MockBean
     private AvailabilityService availabilityService;
+
+    @MockBean
+    private BookService bookService;
 
     @Autowired
     private CheckoutService checkoutService;

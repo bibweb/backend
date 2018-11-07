@@ -12,6 +12,7 @@ public class CheckoutDTO {
     private Date checkoutDate;
     private Date dueDate;
     private Boolean stillOut;
+    private String bookTitle;
 
     public CheckoutDTO() {
         this.checkoutDate = Date.from(Instant.now());
@@ -66,4 +67,11 @@ public class CheckoutDTO {
         this.dueDate = dueDate;
     }
 
+    public String getBookTitle() {
+        return bookTitle;
+    }
+
+    public void setBookTitle(String bookTitle) {
+        this.bookTitle = bookTitle;
+    }
 }

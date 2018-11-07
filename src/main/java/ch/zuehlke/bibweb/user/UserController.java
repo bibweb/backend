@@ -41,7 +41,7 @@ public class UserController {
 
     @GetMapping("/{id}/checkouts")
     public List<CheckoutDTO> getCheckoutsByUser(@PathVariable("id") int id) {
-        return checkoutService.getCheckouts((long) id);
+        return checkoutService.getActiveCheckoutsByUser((long) id);
     }
 
     @PutMapping("/{id}/checkouts/books/{bookId}")

@@ -1,9 +1,11 @@
 package ch.zuehlke.bibweb.book;
 
+import ch.zuehlke.bibweb.book.projection.BookIdAndTitle;
+
 import javax.persistence.*;
 
 @Entity
-public class Book {
+public class Book implements BookIdAndTitle {
 
     @Id
     @Column(name="id")
