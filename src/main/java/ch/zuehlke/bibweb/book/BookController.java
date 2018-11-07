@@ -1,7 +1,6 @@
 package ch.zuehlke.bibweb.book;
 
-import ch.zuehlke.bibweb.book.exception.*;
-import ch.zuehlke.bibweb.checkout.CheckoutService;
+import ch.zuehlke.bibweb.book.exception.BookNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -15,12 +14,14 @@ public class BookController {
     @Autowired
     private BookService bookService;
 
-    @Autowired
-    private CheckoutService checkoutService;
-
     @GetMapping("/books")
     public List<BookDTO> getAllBooks() {
         return bookService.getAllBooks();
+    }
+
+    @GetMapping(value = "/books", params = "onlyId")
+    public List<Long> getIdsOfAllBooks() {
+        return bookService.getAllBookIds();
     }
 
     @GetMapping("/books/{id}")

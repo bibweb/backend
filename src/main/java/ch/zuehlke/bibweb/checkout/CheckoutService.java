@@ -1,6 +1,7 @@
 package ch.zuehlke.bibweb.checkout;
 
 import ch.zuehlke.bibweb.book.BookCheckoutState;
+import ch.zuehlke.bibweb.book.BookService;
 import ch.zuehlke.bibweb.book.exception.*;
 import ch.zuehlke.bibweb.user.UserSecurityUtil;
 import org.springframework.beans.BeanUtils;
@@ -21,9 +22,16 @@ public class CheckoutService {
     @Autowired
     private AvailabilityService availabilityService;
 
+    @Autowired
+    private BookService bookService;
+
     @PreAuthorize("hasAuthority('ROLE_LIBRARIAN') or hasAuthority('ROLE_ADMIN') or authentication.principal.getId() == #userId")
-    public List<CheckoutDTO> getCheckouts(long userId) {
-        return checkoutRepository.findAllByUserId(userId).stream().map(this::mapCheckoutEntityToDTO).collect(Collectors.toList());
+    public List<CheckoutDTO> getActiveCheckoutsByUser(long userId) {
+        return checkoutRepository.findAllByUserId(userId)
+                .stream()
+                .map(this::mapCheckoutEntityToDTO)
+                .filter(checkout -> checkout.getStillOut())
+                .collect(Collectors.toList());
     }
 
     public CheckoutDTO checkoutBookForCurrentUser(long bookId) {
@@ -76,6 +84,7 @@ public class CheckoutService {
     private CheckoutDTO mapCheckoutEntityToDTO(Checkout checkout) {
         CheckoutDTO dto = new CheckoutDTO();
         BeanUtils.copyProperties(checkout, dto);
+        dto.setBookTitle(bookService.getBookTitleById(dto.getBookId()));
         return dto;
     }
 

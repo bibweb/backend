@@ -19,6 +19,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import static org.mockito.BDDMockito.given;
+
 @RunWith(SpringRunner.class)
 public class BookServiceTest {
 
@@ -96,6 +98,22 @@ public class BookServiceTest {
         ArgumentCaptor<Book> capture = ArgumentCaptor.forClass(Book.class);
         Mockito.verify(bookRepository, Mockito.times(1)).save(capture.capture());
         Assert.assertEquals("Updated book", capture.getValue().getTitle());
+    }
+
+    @Test
+    public void whenRequestingOnlyBookTitle_thenReturnIfExists() {
+        Book book = new Book();
+        book.setId(1L);
+        book.setTitle("Title A");
+
+        given(bookRepository.findIdAndTitleById(1L)).willReturn(Optional.of(book));
+
+        Assert.assertEquals("Title A", bookService.getBookTitleById(1L));
+    }
+
+    @Test
+    public void whenRequestingOnlyBookTitle_thenReturnEmptyStringIfNotExists() {
+        Assert.assertEquals("", bookService.getBookTitleById(1L));
     }
 
 }

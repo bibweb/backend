@@ -1,6 +1,7 @@
 package ch.zuehlke.bibweb.book;
 
 import ch.zuehlke.bibweb.book.exception.BookNotFoundException;
+import ch.zuehlke.bibweb.book.projection.BookIdAndTitle;
 import ch.zuehlke.bibweb.checkout.AvailabilityService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,4 +57,14 @@ public class BookService {
         return dto;
     }
 
+    public String getBookTitleById(Long bookId) {
+        Optional<BookIdAndTitle> bookWithTitle = bookRepository.findIdAndTitleById(bookId);
+
+        if(bookWithTitle.isPresent()) return bookWithTitle.get().getTitle();
+        return "";
+    }
+
+    public List<Long> getAllBookIds() {
+        return bookRepository.findAll().stream().map(book -> book.getId()).collect(Collectors.toList());
+    }
 }
