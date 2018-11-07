@@ -19,7 +19,9 @@ public class BookRequestService {
 
     public List<BookRequestDTO> getBookRequests() {
         if (UserSecurityUtil.currentUserHasRole("ROLE_ADMIN")) {
-            return this.bookRequestRepository.findAll().stream().map(this::mapBookRequestToBookRequestDTO).collect(Collectors.toList());
+            return this.bookRequestRepository.findAll().stream()
+                    .map(this::mapBookRequestToBookRequestDTO)
+                    .collect(Collectors.toList());
         } else {
             return this.bookRequestRepository.findAllByUser(UserSecurityUtil.currentUserName())
                     .stream()
@@ -53,29 +55,28 @@ public class BookRequestService {
 
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public BookRequestDTO acceptBookRequest(BookRequestDTO bookRequestDto) {
-        if (bookRequestDto.getState() != BookRequestState.NEW) {
+        if (checkStateNotNew(bookRequestDto)) {
             throw new IllegalArgumentException("BookRequest doesn't allow to be accepted. Must be in state NEW, current " +bookRequestDto.getState());
         }
-
-        final Optional<BookRequest> bookRequest = this.bookRequestRepository.findById(bookRequestDto.getId());
-        if (bookRequest.isPresent()) {
-            bookRequest.get().setState(BookRequestState.ACCEPTED);
-            return mapBookRequestToBookRequestDTO(this.bookRequestRepository.saveAndFlush(bookRequest.get()));
-
-        } else {
-            throw new BookRequestNotFoundException();
-        }
+        return changeBookRequestState(bookRequestDto.getId(), BookRequestState.ACCEPTED);
     }
 
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public BookRequestDTO declineBookRequest(BookRequestDTO bookRequestDto) {
-        if (bookRequestDto.getState() != BookRequestState.NEW) {
+        if (checkStateNotNew(bookRequestDto)) {
             throw new IllegalArgumentException("BookRequest doesn't allow to be declined. Must be in state NEW, current " +bookRequestDto.getState());
         }
+        return changeBookRequestState(bookRequestDto.getId(), BookRequestState.DECLINED);
+    }
 
-        final Optional<BookRequest> bookRequest = this.bookRequestRepository.findById(bookRequestDto.getId());
+    private boolean checkStateNotNew(final BookRequestDTO bookRequestDto) {
+        return bookRequestDto.getState() != BookRequestState.NEW;
+    }
+
+    private BookRequestDTO changeBookRequestState(final long bookRequestId, final BookRequestState newState) {
+        final Optional<BookRequest> bookRequest = this.bookRequestRepository.findById(bookRequestId);
         if (bookRequest.isPresent()) {
-            bookRequest.get().setState(BookRequestState.DECLINED);
+            bookRequest.get().setState(newState);
             return mapBookRequestToBookRequestDTO(this.bookRequestRepository.saveAndFlush(bookRequest.get()));
         } else {
             throw new BookRequestNotFoundException();
