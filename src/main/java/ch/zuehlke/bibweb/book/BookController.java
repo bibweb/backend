@@ -15,9 +15,6 @@ public class BookController {
     @Autowired
     private BookService bookService;
 
-    @Autowired
-    private CheckoutService checkoutService;
-
     @GetMapping("/books")
     public List<BookDTO> getAllBooks() {
         return bookService.getAllBooks();

@@ -1,9 +1,9 @@
 package ch.zuehlke.bibweb.reservation;
 
+import ch.zuehlke.bibweb.config.MethodSecurityConfig;
 import ch.zuehlke.bibweb.config.UserDetailTestService;
-import ch.zuehlke.bibweb.config.WebSecurityTestConfig;
-import ch.zuehlke.bibweb.reservation.exception.ReservationAlreadyExistsForUserException;
 import ch.zuehlke.bibweb.reservation.exception.ActiveReservationDoesNotExistsForUserException;
+import ch.zuehlke.bibweb.reservation.exception.ReservationAlreadyExistsForUserException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -28,7 +28,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
 @RunWith(SpringRunner.class)
-@Import(WebSecurityTestConfig.class)
+@Import(MethodSecurityConfig.class)
 public class ReservationServiceTests {
 
     @TestConfiguration

@@ -1,7 +1,7 @@
 package ch.zuehlke.bibweb.bookrequest;
 
 import ch.zuehlke.bibweb.bookrequest.exception.BookRequestNotFoundException;
-import ch.zuehlke.bibweb.config.WebSecurityTestConfig;
+import ch.zuehlke.bibweb.config.MethodSecurityConfig;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +23,7 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 
 @RunWith(SpringRunner.class)
-@Import(WebSecurityTestConfig.class)
+@Import(MethodSecurityConfig.class)
 public class BookRequestServiceTest {
 
     @MockBean

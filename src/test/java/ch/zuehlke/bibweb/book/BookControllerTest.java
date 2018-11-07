@@ -1,24 +1,16 @@
 package ch.zuehlke.bibweb.book;
 import ch.zuehlke.bibweb.book.exception.*;
 import ch.zuehlke.bibweb.checkout.CheckoutService;
-import ch.zuehlke.bibweb.config.UserDetailTestService;
-import ch.zuehlke.bibweb.config.WebSecurityTestConfig;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Bean;
 import org.springframework.http.MediaType;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.security.test.context.support.WithUserDetails;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.ArrayList;
@@ -34,8 +26,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(BookController.class)
-@ContextConfiguration(classes = {WebSecurityTestConfig.class, BookController.class})
-@WebAppConfiguration
+@ActiveProfiles("unit-test")
 public class BookControllerTest {
 
     @Autowired
@@ -43,9 +34,6 @@ public class BookControllerTest {
 
     @MockBean
     private BookService bookService;
-
-    @MockBean
-    private CheckoutService checkoutService;
 
     @Test
     @WithMockUser(roles = "USER")
@@ -97,26 +85,22 @@ public class BookControllerTest {
     }
 
     @Test
-    public void whenRequestingAllBooksAndNotAuthenticated_thenShouldBeForbidden() throws Exception {
+    public void whenRequestingAllBooksAndNotAuthenticated_thenShouldBeUnauthorized() throws Exception {
         mvc.perform(get("/books")
                 .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isForbidden());
+                .andExpect(status().isUnauthorized());
     }
 
     @Test
-    public void whenRequestingABookAndNotAuthenticated_thenShouldBeForbidden() throws Exception {
+    public void whenRequestingABookAndNotAuthenticated_thenShouldBeUnauthorized() throws Exception {
         mvc.perform(get("/books/1")
                 .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isForbidden());
+                .andExpect(status().isUnauthorized());
     }
 
     @Test
     @WithMockUser(authorities = "ROLE_USER")
     public void whenUpdatingBookAndNotAdmin_thenShouldBeForbidden() throws Exception {
-        updateRequestShouldBeForbidden();
-    }
-
-    private void updateRequestShouldBeForbidden() throws Exception {
         final BookDTO book = new BookDTO();
         book.setId(1L);
         book.setTitle("updatedTitle");
@@ -129,9 +113,22 @@ public class BookControllerTest {
                 .andExpect(status().isForbidden());
     }
 
+    private void updateRequestShouldBeUnauthorized() throws Exception {
+        final BookDTO book = new BookDTO();
+        book.setId(1L);
+        book.setTitle("updatedTitle");
+
+        doNothing().when(bookService).updateBook(any(Long.class), any(BookDTO.class));
+
+        this.mvc.perform(put("/books/1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new ObjectMapper().writeValueAsString(book)))
+                .andExpect(status().isUnauthorized());
+    }
+
     @Test
-    public void whenUpdatingBookAndNotAuthenticated_thenShouldBeForbidden() throws Exception {
-        updateRequestShouldBeForbidden();
+    public void whenUpdatingBookAndNotAuthenticated_thenShouldBeUnauthorized() throws Exception {
+        updateRequestShouldBeUnauthorized();
     }
 
     @Test
