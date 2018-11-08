@@ -4,6 +4,7 @@ import ch.zuehlke.bibweb.book.exception.*;
 import ch.zuehlke.bibweb.checkout.Checkout;
 import ch.zuehlke.bibweb.checkout.CheckoutDTO;
 import ch.zuehlke.bibweb.checkout.CheckoutService;
+import ch.zuehlke.bibweb.reservation.ReservationDTO;
 import ch.zuehlke.bibweb.reservation.ReservationService;
 import ch.zuehlke.bibweb.reservation.exception.ActiveReservationDoesNotExistsForUserException;
 import ch.zuehlke.bibweb.reservation.exception.ReservationAlreadyExistsForUserException;
@@ -66,6 +67,11 @@ public class UserController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void removeReservation(@PathVariable("id") int id, @PathVariable("bookId") int bookId) {
         reservationService.removeReservation((long) id, (long) bookId);
+    }
+
+    @GetMapping("/{id}/reservations")
+    public List<ReservationDTO> getReservations(@PathVariable("id") int id) {
+        return reservationService.getAllReservationsByUser((long) id);
     }
 
     @ExceptionHandler

@@ -1,7 +1,7 @@
 package ch.zuehlke.bibweb.user;
 
 import ch.zuehlke.bibweb.checkout.CheckoutService;
-import ch.zuehlke.bibweb.config.WebSecurityTestConfig;
+import ch.zuehlke.bibweb.reservation.ReservationDTO;
 import ch.zuehlke.bibweb.reservation.ReservationService;
 import ch.zuehlke.bibweb.reservation.exception.ActiveReservationDoesNotExistsForUserException;
 import ch.zuehlke.bibweb.reservation.exception.ReservationAlreadyExistsForUserException;
@@ -13,14 +13,16 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.Arrays;
+
+import static org.hamcrest.Matchers.hasSize;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doThrow;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
@@ -74,5 +76,25 @@ public class UserControllerReservationTests {
         this.mvc.perform(put("/users/1/reservations/books/1")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated());
+    }
+
+    @Test
+    @WithMockUser(roles = "USER")
+    public void whenGettingListOfReservations_thenStatusIsOkAndReceiveThem() throws Exception {
+        given(reservationService.getAllReservationsByUser(1L)).willReturn(Arrays.asList(new ReservationDTO(), new ReservationDTO()));
+
+        this.mvc.perform(get("/users/1/reservations")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(2)));
+    }
+
+    @Test
+    @WithMockUser(roles = "USER")
+    public void whenGettingListOfReservations_thenStatusIsOkAndReceiveEmptyList() throws Exception {
+        this.mvc.perform(get("/users/1/reservations")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(0)));
     }
 }
