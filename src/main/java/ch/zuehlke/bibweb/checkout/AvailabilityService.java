@@ -3,7 +3,7 @@ package ch.zuehlke.bibweb.checkout;
 import ch.zuehlke.bibweb.book.BookCheckoutState;
 import ch.zuehlke.bibweb.book.BookRepository;
 import ch.zuehlke.bibweb.book.exception.BookNotFoundException;
-import ch.zuehlke.bibweb.user.UserSecurityUtil;
+import ch.zuehlke.bibweb.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -12,11 +12,18 @@ import java.util.Optional;
 @Service
 public class AvailabilityService {
 
-    @Autowired
     private CheckoutRepository checkoutRepository;
+    private BookRepository bookRepository;
+    private UserService userService;
 
     @Autowired
-    private BookRepository bookRepository;
+    public AvailabilityService(BookRepository bookRepository,
+                               CheckoutRepository checkoutRepository,
+                               UserService userService) {
+        this.bookRepository = bookRepository;
+        this.checkoutRepository = checkoutRepository;
+        this.userService = userService;
+    }
 
     public BookCheckoutState getAvailabilityBasedOnCheckouts(Long bookId) {
         if(!bookRepository.findById(bookId).isPresent()) throw new BookNotFoundException();
@@ -28,7 +35,7 @@ public class AvailabilityService {
             if (!reservation.get().getStillOut()) {
                 retVal = BookCheckoutState.AVAILABLE;
             } else {
-                if (reservation.get().getUserId().equals(UserSecurityUtil.getCurrentUser().getId())) {
+                if (reservation.get().getUserId().equals(userService.getCurrentUser().getId())) {
                     retVal = BookCheckoutState.CHECKEDOUT_BY_YOU;
                 } else {
                     retVal = BookCheckoutState.UNAVAILABLE;
