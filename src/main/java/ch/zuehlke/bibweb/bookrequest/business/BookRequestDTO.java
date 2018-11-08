@@ -1,4 +1,6 @@
-package ch.zuehlke.bibweb.bookrequest;
+package ch.zuehlke.bibweb.bookrequest.business;
+
+import ch.zuehlke.bibweb.bookrequest.data.BookRequestState;
 
 public class BookRequestDTO {
 

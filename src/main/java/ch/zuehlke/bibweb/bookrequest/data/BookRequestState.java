@@ -1,4 +1,4 @@
-package ch.zuehlke.bibweb.bookrequest;
+package ch.zuehlke.bibweb.bookrequest.data;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 

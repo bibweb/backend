@@ -1,6 +1,11 @@
-package ch.zuehlke.bibweb.bookrequest;
+package ch.zuehlke.bibweb.bookrequest.web;
 
+import ch.zuehlke.bibweb.bookrequest.business.BookRequestDTO;
+import ch.zuehlke.bibweb.bookrequest.business.BookRequestService;
+import ch.zuehlke.bibweb.bookrequest.data.BookRequest;
 import ch.zuehlke.bibweb.bookrequest.exception.BookRequestNotFoundException;
+import ch.zuehlke.bibweb.user.UserSecurityUtil;
+import org.springframework.beans.BeanUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -20,9 +25,12 @@ public class BookRequestController {
     }
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public List<BookRequestDTO> getBookRequests() {
-        return this.bookRequestService.getBookRequests();
+        if (UserSecurityUtil.currentUserHasAuthority("ROLE_ADMIN")) {
+           return this.bookRequestService.getAllBookRequests();
+        } else {
+            return this.bookRequestService.getBookRequestsForUser(UserSecurityUtil.currentUserName());
+        }
     }
 
     @PostMapping

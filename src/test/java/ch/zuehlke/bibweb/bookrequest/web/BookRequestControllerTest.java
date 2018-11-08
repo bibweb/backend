@@ -1,5 +1,9 @@
-package ch.zuehlke.bibweb.bookrequest;
+package ch.zuehlke.bibweb.bookrequest.web;
 
+import ch.zuehlke.bibweb.bookrequest.business.BookRequestDTO;
+import ch.zuehlke.bibweb.bookrequest.business.BookRequestService;
+import ch.zuehlke.bibweb.bookrequest.data.BookRequest;
+import ch.zuehlke.bibweb.bookrequest.data.BookRequestState;
 import ch.zuehlke.bibweb.bookrequest.exception.BookRequestNotFoundException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
@@ -9,10 +13,10 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.Arrays;
 import java.util.Collections;
 
 import static org.hamcrest.Matchers.hasSize;
@@ -26,20 +30,32 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
-@WebMvcTest(BookRequestController.class)
-@ActiveProfiles("unit-test")
+@WebMvcTest(value = BookRequestController.class, secure = false)
 public class BookRequestControllerTest {
+    @MockBean
+    private BookRequestService bookRequestService;
 
     @Autowired
     private MockMvc mvc;
 
-    @MockBean
-    private BookRequestService bookRequestService;
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    public void getAllBookRequests_asADMIN() throws Exception {
+        given(this.bookRequestService.getAllBookRequests()).willReturn(Arrays.asList(
+                new BookRequestDTO("45453535455", "user1", BookRequestState.NEW),
+                new BookRequestDTO("32153211535", "user2", BookRequestState.NEW)
+        ));
+
+        this.mvc.perform(get("/bookrequest")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(2)));
+    }
 
     @Test
     @WithMockUser(username = "user", roles = "USER")
-    public void getAllBookRequests() throws Exception {
-        given(this.bookRequestService.getBookRequests()).willReturn(
+    public void getAllBookRequests_asUSER() throws Exception {
+        given(this.bookRequestService.getBookRequestsForUser("user")).willReturn(
                 Collections.singletonList(new BookRequestDTO("123", "user", BookRequestState.NEW))
         );
 
@@ -53,7 +69,6 @@ public class BookRequestControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
     public void getBookRequestDetails() throws Exception {
         final BookRequestDTO bookRequest = new BookRequestDTO((long) 1, "123", "user1");
 
@@ -67,17 +82,6 @@ public class BookRequestControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "user2", roles = "USER")
-    public void getBookRequestDetails_Forbidden() throws Exception {
-        final BookRequestDTO bookRequest = new BookRequestDTO((long) 1, "123", "user1");
-
-        given(this.bookRequestService.getBookRequestDetails(anyLong())).willReturn(bookRequest);
-
-        this.mvc.perform(get("/bookrequest/1"))
-                .andExpect(status().isForbidden());
-    }
-
-    @Test
     @WithMockUser
     public void getBookRequestDetails_NotFound() throws Exception {
         given(this.bookRequestService.getBookRequestDetails(anyLong())).willThrow(new BookRequestNotFoundException());
@@ -87,7 +91,6 @@ public class BookRequestControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "user", roles = "USER")
     public void createBookRequest() throws Exception {
         final BookRequestDTO bookRequest = new BookRequestDTO("123", "user");
 
@@ -105,7 +108,6 @@ public class BookRequestControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "admin", roles = "ADMIN")
     public void updateBookRequest() throws Exception {
         final BookRequestDTO bookRequest = new BookRequestDTO((long) 1, "3932420942092", "testuser", BookRequestState.ACCEPTED);
 
@@ -119,19 +121,6 @@ public class BookRequestControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "user")
-    public void updateBookRequest_Forbidden() throws Exception {
-        final BookRequestDTO bookRequest = new BookRequestDTO("3932420942092", "user", BookRequestState.ACCEPTED);
-
-        this.mvc.perform(put("/bookrequest/1")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(new ObjectMapper().writeValueAsString(bookRequest))
-                .characterEncoding("UTF8"))
-                .andExpect(status().isForbidden());
-    }
-
-    @Test
-    @WithMockUser(roles = "ADMIN")
     public void acceptBookRequest() throws Exception {
         final BookRequestDTO bookRequest = new BookRequestDTO((long) 10, "131561161516", "user", BookRequestState.NEW);
 
@@ -148,29 +137,13 @@ public class BookRequestControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
-    public void acceptBookRequest_notFound() throws Exception {
-        final BookRequestDTO bookRequest = new BookRequestDTO((long) 10, "131561161516", "user", BookRequestState.NEW);
-
-        given(this.bookRequestService.acceptBookRequest(any(BookRequestDTO.class)))
-                .willThrow(new BookRequestNotFoundException());
-
-        this.mvc.perform(put("/bookrequest/10/accept")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(new ObjectMapper().writeValueAsString(bookRequest))
-                .characterEncoding("UTF8"))
-                .andExpect(status().isNotFound());
-    }
-
-    @Test
-    @WithMockUser(roles = "ADMIN")
-    public void acceptBookRequest_wrongState() throws Exception {
+    public void acceptBookRequest_IdBodyMismatch() throws Exception {
         final BookRequestDTO bookRequest = new BookRequestDTO((long) 10, "131561161516", "user", BookRequestState.NEW);
 
         given(this.bookRequestService.acceptBookRequest(any(BookRequestDTO.class)))
                 .willThrow(new IllegalArgumentException());
 
-        this.mvc.perform(put("/bookrequest/10/accept")
+        this.mvc.perform(put("/bookrequest/11/accept")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(new ObjectMapper().writeValueAsString(bookRequest))
                 .characterEncoding("UTF8"))
@@ -179,7 +152,6 @@ public class BookRequestControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
     public void declineBookRequest() throws Exception {
         final BookRequestDTO bookRequest = new BookRequestDTO((long) 10, "131561161516", "user", BookRequestState.NEW);
 
@@ -193,5 +165,20 @@ public class BookRequestControllerTest {
                 .characterEncoding("UTF8"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.state", is(BookRequestState.DECLINED.ordinal())));
+    }
+
+    @Test
+    public void declineBookRequest_IdBodyMismatch() throws Exception {
+        final BookRequestDTO bookRequest = new BookRequestDTO((long) 10, "131561161516", "user", BookRequestState.NEW);
+
+        given(this.bookRequestService.declineBookRequest(any(BookRequestDTO.class))).willReturn(
+                new BookRequestDTO((long) 10, "131561161516", "user", BookRequestState.DECLINED)
+        );
+
+        this.mvc.perform(put("/bookrequest/11/decline")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new ObjectMapper().writeValueAsString(bookRequest))
+                .characterEncoding("UTF8"))
+                .andExpect(status().isBadRequest());
     }
 }

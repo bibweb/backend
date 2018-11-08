@@ -3,9 +3,9 @@ package ch.zuehlke.bibweb.user;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 public class UserSecurityUtil {
-    public static boolean currentUserHasRole(final String neededRole) {
+    public static boolean currentUserHasAuthority(final String neededAuthority) {
         return SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
-                .anyMatch(a -> a.getAuthority().equals(neededRole));
+                .anyMatch(a -> a.getAuthority().equals(neededAuthority));
     }
 
     public static String currentUserName() {
