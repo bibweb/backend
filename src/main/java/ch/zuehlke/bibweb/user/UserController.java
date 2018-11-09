@@ -54,7 +54,7 @@ public class UserController {
     @DeleteMapping("/{id}/checkouts/books/{bookId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void returnBook(@PathVariable("id") int id, @PathVariable("bookId") int bookId) {
-        checkoutService.returnBook((long) bookId);
+        checkoutService.returnBook((long) id, (long) bookId);
     }
 
     @PutMapping("/{id}/reservations/books/{bookId}")

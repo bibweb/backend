@@ -152,7 +152,7 @@ public class CheckoutServiceTests {
     @Test(expected = CheckoutDoesNotExistException.class)
     @WithUserDetails(value = "admin", userDetailsServiceBeanName = "userDetailsService")
     public void whenDeletingNonExistingCheckout_thenThrowCheckoutDoesNotExistException() {
-        checkoutService.returnBook(book.getId());
+        checkoutService.returnBook(1L, book.getId());
     }
 
     @Test(expected = AccessDeniedException.class)
@@ -161,14 +161,14 @@ public class CheckoutServiceTests {
         checkout.setStillOut(true);
         Mockito.when(checkoutRepository.findTop1ByBookIdOrderByCheckoutDateDesc(1L)).thenReturn(Optional.of(checkout));
 
-        checkoutService.returnBook(book.getId());
+        checkoutService.returnBook(1L, book.getId());
     }
 
     @Test(expected = CheckoutDoesNotExistException.class)
     @WithUserDetails(value = "admin", userDetailsServiceBeanName = "userDetailsService")
     public void whenDeletingNonActiveCheckout_thenThrowCheckoutDoesNotExistException() {
         Mockito.when(checkoutRepository.findTop1ByBookIdOrderByCheckoutDateDesc(1L)).thenReturn(Optional.of(checkout));
-        checkoutService.returnBook(book.getId());
+        checkoutService.returnBook(1L, book.getId());
     }
 
     @Test
@@ -176,7 +176,7 @@ public class CheckoutServiceTests {
     public void whenDeletingCheckout_thenSetReturnedToFalse() {
         checkout.setStillOut(true);
         Mockito.when(checkoutRepository.findTop1ByBookIdOrderByCheckoutDateDesc(1L)).thenReturn(Optional.of(checkout));
-        checkoutService.returnBook(book.getId());
+        checkoutService.returnBook(1L, book.getId());
 
         ArgumentCaptor<Checkout> capture = ArgumentCaptor.forClass(Checkout.class);
         Mockito.verify(checkoutRepository, Mockito.times(1)).saveAndFlush(capture.capture());

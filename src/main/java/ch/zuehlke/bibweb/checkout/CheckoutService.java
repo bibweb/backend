@@ -66,15 +66,19 @@ public class CheckoutService {
     }
 
     @PreAuthorize("hasAuthority('ROLE_LIBRARIAN') or hasAuthority('ROLE_ADMIN')")
-    public void returnBook(long bookId) {
+    public void returnBook(long userId, long bookId) {
         Optional<Checkout> optionalCheckout = checkoutRepository.findTop1ByBookIdOrderByCheckoutDateDesc(bookId);
 
         if (!optionalCheckout.isPresent()) throw new CheckoutDoesNotExistException();
         Checkout checkout = optionalCheckout.get();
 
-        if (checkout.getStillOut()) {
-            checkout.setStillOut(false);
-            checkoutRepository.saveAndFlush(checkout);
+        if(userId == checkout.getUserId()) {
+            if (checkout.getStillOut()) {
+                checkout.setStillOut(false);
+                checkoutRepository.saveAndFlush(checkout);
+            } else {
+                throw new CheckoutDoesNotExistException();
+            }
         } else {
             throw new CheckoutDoesNotExistException();
         }
