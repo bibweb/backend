@@ -54,9 +54,9 @@ public class CheckoutService {
             Checkout checkout = new Checkout();
             checkout.setStillOut(true);
             checkout.setBookId(bookId);
-            checkout.setUserId(UserSecurityUtil.getCurrentUser().getId());
+            checkout.setUserId(userId);
 
-            if(reservationService.reservationExistsForUser(checkout.getUserId(), bookId)) {
+            if (reservationService.reservationExistsForUser(checkout.getUserId(), bookId)) {
                 reservationService.removeReservation(checkout.getUserId(), bookId);
             }
             checkout = checkoutRepository.saveAndFlush(checkout);
@@ -76,8 +76,11 @@ public class CheckoutService {
         if (!checkout.isPresent()) throw new CheckoutDoesNotExistException();
         Checkout res = checkout.get();
 
-        if (res.getUserId().equals(UserSecurityUtil.getCurrentUser().getId())) {
-            if(res.getStillOut()) {
+        if (res.getUserId().equals(userId)
+                || UserSecurityUtil.currentUserHasAuthority("ROLE_LIBRARIAN")
+                || UserSecurityUtil.currentUserHasAuthority("ROLE_ADMIN")
+        ) {
+            if (res.getStillOut()) {
                 res.setStillOut(false);
                 checkoutRepository.saveAndFlush(res);
             } else {
