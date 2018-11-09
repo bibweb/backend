@@ -6,7 +6,6 @@ import ch.zuehlke.bibweb.book.BookService;
 import ch.zuehlke.bibweb.book.exception.*;
 import ch.zuehlke.bibweb.config.MethodSecurityConfig;
 import ch.zuehlke.bibweb.config.UserDetailTestService;
-import ch.zuehlke.bibweb.config.WebSecurityTestConfig;
 import ch.zuehlke.bibweb.reservation.ReservationService;
 import ch.zuehlke.bibweb.user.BibwebUser;
 import org.junit.Assert;
@@ -20,6 +19,7 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -150,33 +150,33 @@ public class CheckoutServiceTests {
     }
 
     @Test(expected = CheckoutDoesNotExistException.class)
-    @WithUserDetails(value = "Stefan", userDetailsServiceBeanName = "userDetailsService")
+    @WithUserDetails(value = "admin", userDetailsServiceBeanName = "userDetailsService")
     public void whenDeletingNonExistingCheckout_thenThrowCheckoutDoesNotExistException() {
-        checkoutService.returnBookForCurrentUser(book.getId());
+        checkoutService.returnBook(book.getId());
     }
 
-    @Test(expected = CannotDeleteCheckoutForOtherUserException.class)
+    @Test(expected = AccessDeniedException.class)
     @WithUserDetails(value = "Stefan", userDetailsServiceBeanName = "userDetailsService")
-    public void whenDeletingExistingCheckoutForOtherUser_thenThrowCannotDeleteCheckoutForOtherUserException() {
+    public void whenDeletingExistingCheckoutForWithUser_thenThrowAccessDeniedException() {
         checkout.setStillOut(true);
         Mockito.when(checkoutRepository.findTop1ByBookIdOrderByCheckoutDateDesc(1L)).thenReturn(Optional.of(checkout));
 
-        checkoutService.returnBookForCurrentUser(book.getId());
+        checkoutService.returnBook(book.getId());
     }
 
     @Test(expected = CheckoutDoesNotExistException.class)
-    @WithUserDetails(value = "Etienne", userDetailsServiceBeanName = "userDetailsService")
+    @WithUserDetails(value = "admin", userDetailsServiceBeanName = "userDetailsService")
     public void whenDeletingNonActiveCheckout_thenThrowCheckoutDoesNotExistException() {
         Mockito.when(checkoutRepository.findTop1ByBookIdOrderByCheckoutDateDesc(1L)).thenReturn(Optional.of(checkout));
-        checkoutService.returnBookForCurrentUser(book.getId());
+        checkoutService.returnBook(book.getId());
     }
 
     @Test
-    @WithUserDetails(value = "Etienne", userDetailsServiceBeanName = "userDetailsService")
+    @WithUserDetails(value = "admin", userDetailsServiceBeanName = "userDetailsService")
     public void whenDeletingCheckout_thenSetReturnedToFalse() {
         checkout.setStillOut(true);
         Mockito.when(checkoutRepository.findTop1ByBookIdOrderByCheckoutDateDesc(1L)).thenReturn(Optional.of(checkout));
-        checkoutService.returnBookForCurrentUser(book.getId());
+        checkoutService.returnBook(book.getId());
 
         ArgumentCaptor<Checkout> capture = ArgumentCaptor.forClass(Checkout.class);
         Mockito.verify(checkoutRepository, Mockito.times(1)).saveAndFlush(capture.capture());

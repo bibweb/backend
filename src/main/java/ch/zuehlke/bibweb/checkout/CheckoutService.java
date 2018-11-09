@@ -42,10 +42,6 @@ public class CheckoutService {
         return checkoutBook(UserSecurityUtil.getCurrentUser().getId(), bookId);
     }
 
-    public void returnBookForCurrentUser(long bookId) {
-        returnBook(UserSecurityUtil.getCurrentUser().getId(), bookId);
-    }
-
     @PreAuthorize("hasAuthority('ROLE_LIBRARIAN') or hasAuthority('ROLE_ADMIN') or authentication.principal.getId() == #userId")
     public CheckoutDTO checkoutBook(long userId, long bookId) {
         BookCheckoutState availabilityState = availabilityService.getAvailabilityBasedOnCheckouts(bookId);
@@ -69,25 +65,18 @@ public class CheckoutService {
         throw new BookCannotBeCheckedOut();
     }
 
-    @PreAuthorize("hasAuthority('ROLE_LIBRARIAN') or hasAuthority('ROLE_ADMIN') or authentication.principal.getId() == #userId")
-    public void returnBook(long userId, long bookId) {
-        Optional<Checkout> checkout = checkoutRepository.findTop1ByBookIdOrderByCheckoutDateDesc(bookId);
+    @PreAuthorize("hasAuthority('ROLE_LIBRARIAN') or hasAuthority('ROLE_ADMIN')")
+    public void returnBook(long bookId) {
+        Optional<Checkout> optionalCheckout = checkoutRepository.findTop1ByBookIdOrderByCheckoutDateDesc(bookId);
 
-        if (!checkout.isPresent()) throw new CheckoutDoesNotExistException();
-        Checkout res = checkout.get();
+        if (!optionalCheckout.isPresent()) throw new CheckoutDoesNotExistException();
+        Checkout checkout = optionalCheckout.get();
 
-        if (res.getUserId().equals(userId)
-                || UserSecurityUtil.currentUserHasAuthority("ROLE_LIBRARIAN")
-                || UserSecurityUtil.currentUserHasAuthority("ROLE_ADMIN")
-        ) {
-            if (res.getStillOut()) {
-                res.setStillOut(false);
-                checkoutRepository.saveAndFlush(res);
-            } else {
-                throw new CheckoutDoesNotExistException();
-            }
+        if (checkout.getStillOut()) {
+            checkout.setStillOut(false);
+            checkoutRepository.saveAndFlush(checkout);
         } else {
-            throw new CannotDeleteCheckoutForOtherUserException();
+            throw new CheckoutDoesNotExistException();
         }
     }
 
