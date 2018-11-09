@@ -9,6 +9,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestConfiguration;
@@ -24,29 +25,18 @@ import java.util.Optional;
 
 import static org.mockito.BDDMockito.given;
 
-@RunWith(SpringRunner.class)
-@Import(MethodSecurityConfig.class)
 public class BookServiceTest {
 
-    @TestConfiguration
-    static class BookServiceTestContextConfiguration {
-        @Bean
-        public BookService bookService() {
-            return new BookService();
-        }
-    }
-
-    @MockBean
     private BookRepository bookRepository;
-
-    @MockBean
     private AvailabilityService availabilityService;
-
-    @Autowired
     private BookService bookService;
 
     @Before
     public void setUp() {
+        bookRepository = Mockito.mock(BookRepository.class);
+        availabilityService = Mockito.mock(AvailabilityService.class);
+        bookService = new BookService(bookRepository, availabilityService);
+
         Book book = new Book();
         book.setTitle("Testbook 1");
 
@@ -85,7 +75,6 @@ public class BookServiceTest {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
     public void whenUpdatingBook_thenBookShouldBeUpdated() {
         Book oldBook = new Book();
         oldBook.setId(1L);

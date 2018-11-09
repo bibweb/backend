@@ -9,6 +9,7 @@ public class BookDTO {
     private Integer numberOfPages;
     private BookType bookType;
     private BookCheckoutState availability;
+    private BookReservationState reservationState;
 
     public BookDTO() {
         this.bookType = BookType.UNKNOWN;
@@ -71,5 +72,13 @@ public class BookDTO {
 
     public void setAvailability(BookCheckoutState availability) {
         this.availability = availability;
+    }
+
+    public BookReservationState getReservationState() {
+        return reservationState;
+    }
+
+    public void setReservationState(BookReservationState reservationState) {
+        this.reservationState = reservationState;
     }
 }

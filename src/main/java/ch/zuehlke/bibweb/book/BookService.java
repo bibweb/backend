@@ -5,7 +5,6 @@ import ch.zuehlke.bibweb.book.projection.BookIdAndTitle;
 import ch.zuehlke.bibweb.checkout.AvailabilityService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,11 +14,14 @@ import java.util.stream.Collectors;
 @Service
 public class BookService {
 
-    @Autowired
     private BookRepository bookRepository;
+    private AvailabilityService availabilityService;
 
     @Autowired
-    private AvailabilityService availabilityService;
+    public BookService(BookRepository bookRepository, AvailabilityService availabilityService) {
+        this.bookRepository = bookRepository;
+        this.availabilityService = availabilityService;
+    }
 
     public List<BookDTO> getAllBooks() {
         return bookRepository.findAll().stream().map(this::mapBookToBookDTO).collect(Collectors.toList());
@@ -32,7 +34,6 @@ public class BookService {
         throw new BookNotFoundException();
     }
 
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public void updateBook(Long id, BookDTO book) {
         if (book != null) {
             book.setId(id);
@@ -54,6 +55,7 @@ public class BookService {
         BookDTO dto = new BookDTO();
         BeanUtils.copyProperties(book, dto);
         dto.setAvailability(availabilityService.getAvailabilityBasedOnCheckouts(dto.getId()));
+        dto.setReservationState(availabilityService.getBookReservationStateForCurrentUser(dto.getId()));
         return dto;
     }
 

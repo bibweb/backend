@@ -7,6 +7,7 @@ import ch.zuehlke.bibweb.book.exception.*;
 import ch.zuehlke.bibweb.config.MethodSecurityConfig;
 import ch.zuehlke.bibweb.config.UserDetailTestService;
 import ch.zuehlke.bibweb.config.WebSecurityTestConfig;
+import ch.zuehlke.bibweb.reservation.ReservationService;
 import ch.zuehlke.bibweb.user.BibwebUser;
 import org.junit.Assert;
 import org.junit.Before;
@@ -26,6 +27,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 
 @RunWith(SpringRunner.class)
 @Import(MethodSecurityConfig.class)
@@ -53,6 +55,9 @@ public class CheckoutServiceTests {
     @MockBean
     private BookService bookService;
 
+    @MockBean
+    private ReservationService reservationService;
+
     @Autowired
     private CheckoutService checkoutService;
 
@@ -72,6 +77,9 @@ public class CheckoutServiceTests {
         checkout = new Checkout();
         checkout.setUserId(user.getId());
         checkout.setStillOut(false);
+
+        given(reservationService.reservationExistsForUser(1L, 1L)).willReturn(false);
+        given(reservationService.reservationExistsForUser(2L, 1L)).willReturn(false);
     }
 
     @Test
@@ -89,6 +97,22 @@ public class CheckoutServiceTests {
         Mockito.verify(checkoutRepository, Mockito.times(1)).saveAndFlush(capture.capture());
         Assert.assertEquals((long) book.getId(), (long) capture.getValue().getBookId());
         Assert.assertEquals(2L, (long) capture.getValue().getUserId()); // ID of user Stefan is == 2
+    }
+
+    @Test
+    @WithUserDetails(value = "Stefan", userDetailsServiceBeanName = "userDetailsService")
+    public void whenCheckingOutBook_thenRemoveReservationIfExists() {
+        checkout.setStillOut(false);
+
+        Mockito.when(availabilityService.getAvailabilityBasedOnCheckouts(1L)).thenReturn(BookCheckoutState.AVAILABLE);
+        Mockito.when(checkoutRepository.findTop1ByBookIdOrderByCheckoutDateDesc(1L)).thenReturn(Optional.of(checkout));
+        Mockito.when(checkoutRepository.saveAndFlush(any(Checkout.class))).thenReturn(new Checkout());
+
+        given(reservationService.reservationExistsForUser(2L, 1L)).willReturn(true);
+
+        checkoutService.checkoutBookForCurrentUser(book.getId());
+
+        Mockito.verify(reservationService, Mockito.times(1)).removeReservation(2L, 1L);
     }
 
     @Test(expected = BookCannotBeCheckedOut.class)

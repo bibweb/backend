@@ -2,7 +2,9 @@ package ch.zuehlke.bibweb.checkout;
 
 import ch.zuehlke.bibweb.book.BookCheckoutState;
 import ch.zuehlke.bibweb.book.BookRepository;
+import ch.zuehlke.bibweb.book.BookReservationState;
 import ch.zuehlke.bibweb.book.exception.BookNotFoundException;
+import ch.zuehlke.bibweb.reservation.ReservationService;
 import ch.zuehlke.bibweb.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,14 +17,17 @@ public class AvailabilityService {
     private CheckoutRepository checkoutRepository;
     private BookRepository bookRepository;
     private UserService userService;
+    private ReservationService reservationService;
 
     @Autowired
     public AvailabilityService(BookRepository bookRepository,
                                CheckoutRepository checkoutRepository,
-                               UserService userService) {
+                               UserService userService,
+                               ReservationService reservationService) {
         this.bookRepository = bookRepository;
         this.checkoutRepository = checkoutRepository;
         this.userService = userService;
+        this.reservationService = reservationService;
     }
 
     public BookCheckoutState getAvailabilityBasedOnCheckouts(Long bookId) {
@@ -44,6 +49,12 @@ public class AvailabilityService {
         }
 
         return retVal;
+    }
+
+    public BookReservationState getBookReservationStateForCurrentUser(Long bookId) {
+        return reservationService.reservationExistsForUser(userService.getCurrentUser().getId(), bookId)
+                ? BookReservationState.RESERVED_BY_YOU
+                : BookReservationState.NOT_RESERVED_BY_YOU;
     }
 
 }

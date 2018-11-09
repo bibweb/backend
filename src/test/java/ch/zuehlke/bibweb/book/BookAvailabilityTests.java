@@ -4,6 +4,7 @@ import ch.zuehlke.bibweb.checkout.AvailabilityService;
 import ch.zuehlke.bibweb.config.UserDetailTestService;
 import ch.zuehlke.bibweb.checkout.Checkout;
 import ch.zuehlke.bibweb.checkout.CheckoutRepository;
+import ch.zuehlke.bibweb.reservation.ReservationService;
 import ch.zuehlke.bibweb.user.BibwebUser;
 import ch.zuehlke.bibweb.user.BibwebUserDTO;
 import ch.zuehlke.bibweb.user.UserService;
@@ -32,6 +33,7 @@ public class BookAvailabilityTests {
     private CheckoutRepository checkoutRepository;
     private UserService userService;
     private AvailabilityService availabilityService;
+    private ReservationService reservationService;
 
     private BibwebUserDTO etienne;
     private BibwebUserDTO stefan;
@@ -49,8 +51,9 @@ public class BookAvailabilityTests {
         bookRepository = Mockito.mock(BookRepository.class);
         checkoutRepository = Mockito.mock(CheckoutRepository.class);
         userService = Mockito.mock(UserService.class);
+        reservationService = Mockito.mock(ReservationService.class);
 
-        availabilityService = new AvailabilityService(bookRepository, checkoutRepository, userService);
+        availabilityService = new AvailabilityService(bookRepository, checkoutRepository, userService, reservationService);
 
         given(userService.getCurrentUser()).willReturn(etienne);
     }
